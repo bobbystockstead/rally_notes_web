@@ -1,0 +1,1998 @@
+openapi: 3.1.1
+info:
+  title: Rally Notes API
+  version: 1.0.0
+  description: API for managing rally races and team information
+paths:
+  /calls:
+    post:
+      tags:
+        - Calls
+      summary: Create call
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Call'
+        required: true
+      responses:
+        '201':
+          description: Call created
+        '400':
+          description: 'Invalid request: missing required note_id/sequence_number
+            and/or one or more referenced IDs do not exist (note, intensity, warning,
+            tip)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Calls
+      summary: Get all calls
+      responses:
+        '200':
+          description: List of call records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Call'
+  /calls/{id}:
+    put:
+      tags:
+        - Calls
+      summary: Update call
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Call'
+        required: true
+      responses:
+        '204':
+          description: Call updated
+        '404':
+          description: Call not found
+        '400':
+          description: 'Invalid request: id must be an integer or one or more references
+            do not exist (note, intensity, warning, tip)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - Calls
+      summary: Delete call
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Call deleted
+        '404':
+          description: Call not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Calls
+      summary: Get call by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Call found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+        '404':
+          description: Call not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /cars:
+    post:
+      tags:
+        - Cars
+      summary: Create car
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+        required: true
+      responses:
+        '201':
+          description: Car created
+        '400':
+          description: Invalid model_id - model does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Cars
+      summary: Get all cars
+      responses:
+        '200':
+          description: List of car records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Car'
+  /cars/{id}:
+    put:
+      tags:
+        - Cars
+      summary: Update car
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+        required: true
+      responses:
+        '204':
+          description: Car updated
+        '404':
+          description: Car not found
+        '400':
+          description: 'Invalid request: id must be an integer or model_id does not
+            exist'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - Cars
+      summary: Delete car
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Car deleted
+        '404':
+          description: Car not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Cars
+      summary: Get car by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Car found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        '404':
+          description: Car not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /crews:
+    post:
+      tags:
+        - Crews
+      summary: Create crew
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Crew'
+        required: true
+      responses:
+        '201':
+          description: Crew created
+        '400':
+          description: 'Invalid request: missing required driver_id/codriver_id and/or
+            one or more referenced IDs do not exist (driver, codriver, car, team)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Crews
+      summary: Get all crews
+      responses:
+        '200':
+          description: List of crew records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Crew'
+  /crews/{id}:
+    put:
+      tags:
+        - Crews
+      summary: Update crew
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Crew'
+        required: true
+      responses:
+        '204':
+          description: Crew updated
+        '404':
+          description: Crew not found
+        '400':
+          description: 'Invalid request: id must be an integer or one or more references
+            do not exist (driver, codriver, car, team)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - Crews
+      summary: Delete crew
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Crew deleted
+        '404':
+          description: Crew not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Crews
+      summary: Get crew by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Crew found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Crew'
+        '404':
+          description: Crew not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /codrivers:
+    post:
+      tags:
+        - Codrivers
+      summary: Create codriver
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Codriver'
+        required: true
+      responses:
+        '201':
+          description: Codriver created
+    get:
+      tags:
+        - Codrivers
+      summary: Get all codrivers
+      responses:
+        '200':
+          description: List of codriver records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Codriver'
+  /codrivers/{id}:
+    put:
+      tags:
+        - Codrivers
+      summary: Update codriver
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Codriver'
+        required: true
+      responses:
+        '204':
+          description: Codriver updated
+        '404':
+          description: Codriver not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - Codrivers
+      summary: Delete codriver
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Codriver deleted
+        '404':
+          description: Codriver not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Codrivers
+      summary: Get codriver by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Codriver found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Codriver'
+        '404':
+          description: Codriver not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /drivers:
+    post:
+      tags:
+        - Drivers
+      summary: Create driver
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Driver'
+        required: true
+      responses:
+        '201':
+          description: Driver created
+    get:
+      tags:
+        - Drivers
+      summary: Get all drivers
+      responses:
+        '200':
+          description: List of driver records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Driver'
+  /drivers/{id}:
+    put:
+      tags:
+        - Drivers
+      summary: Update driver
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Driver'
+        required: true
+      responses:
+        '204':
+          description: Driver updated
+        '404':
+          description: Driver not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - Drivers
+      summary: Delete driver
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Driver deleted
+        '404':
+          description: Driver not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Drivers
+      summary: Get driver by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Driver found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '404':
+          description: Driver not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /intensities:
+    post:
+      tags:
+        - Intensities
+      summary: Create intensity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Intensity'
+        required: true
+      responses:
+        '201':
+          description: Intensity created
+    get:
+      tags:
+        - Intensities
+      summary: Get all intensities
+      responses:
+        '200':
+          description: List of intensity records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Intensity'
+  /intensities/{id}:
+    put:
+      tags:
+        - Intensities
+      summary: Update intensity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Intensity'
+        required: true
+      responses:
+        '204':
+          description: Intensity updated
+        '404':
+          description: Intensity not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - Intensities
+      summary: Delete intensity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Intensity deleted
+        '404':
+          description: Intensity not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Intensities
+      summary: Get intensity by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Intensity found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Intensity'
+        '404':
+          description: Intensity not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /manufacturers:
+    post:
+      tags:
+        - Manufacturers
+      summary: Create manufacturer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Manufacturer'
+        required: true
+      responses:
+        '201':
+          description: Manufacturer created
+    get:
+      tags:
+        - Manufacturers
+      summary: Get all manufacturers
+      responses:
+        '200':
+          description: List of manufacturer records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Manufacturer'
+  /manufacturers/{id}:
+    put:
+      tags:
+        - Manufacturers
+      summary: Update manufacturer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Manufacturer'
+        required: true
+      responses:
+        '204':
+          description: Manufacturer updated
+        '404':
+          description: Manufacturer not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - Manufacturers
+      summary: Delete manufacturer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Manufacturer deleted
+        '404':
+          description: Manufacturer not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Manufacturers
+      summary: Get manufacturer by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Manufacturer found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manufacturer'
+        '404':
+          description: Manufacturer not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /models:
+    post:
+      tags:
+        - Models
+      summary: Create model
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Model'
+        required: true
+      responses:
+        '201':
+          description: Model created
+        '400':
+          description: Invalid manufacturer_id - manufacturer does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Models
+      summary: Get all models
+      responses:
+        '200':
+          description: List of model records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Model'
+  /models/{id}:
+    put:
+      tags:
+        - Models
+      summary: Update model
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Model'
+        required: true
+      responses:
+        '204':
+          description: Model updated
+        '404':
+          description: Model not found
+        '400':
+          description: 'Invalid request: id must be an integer or manufacturer_id
+            does not exist'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - Models
+      summary: Delete model
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Model deleted
+        '404':
+          description: Model not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Models
+      summary: Get model by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Model found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model'
+        '404':
+          description: Model not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /noteSets:
+    post:
+      tags:
+        - NoteSets
+      summary: Create noteSet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteSet'
+        required: true
+      responses:
+        '201':
+          description: NoteSet created
+        '400':
+          description: 'Invalid request: missing required crew_id/stage_id and/or
+            one or more referenced IDs do not exist (crew, stage)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - NoteSets
+      summary: Get all NoteSets
+      responses:
+        '200':
+          description: List of NoteSet records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NoteSet'
+  /noteSets/{id}:
+    put:
+      tags:
+        - NoteSets
+      summary: Update noteSet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteSet'
+        required: true
+      responses:
+        '204':
+          description: NoteSet updated
+        '404':
+          description: NoteSet not found
+        '400':
+          description: 'Invalid request: missing required crew_id/stage_id and/or
+            one or more referenced IDs do not exist (crew, stage)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - NoteSets
+      summary: Delete noteSet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: NoteSet deleted
+        '404':
+          description: NoteSet not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - NoteSets
+      summary: Get NoteSet by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: NoteSet found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteSet'
+        '404':
+          description: NoteSet not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /stages:
+    post:
+      tags:
+        - Stages
+      summary: Create stage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Stage'
+        required: true
+      responses:
+        '201':
+          description: Stage created
+    get:
+      tags:
+        - Stages
+      summary: Get all stages
+      responses:
+        '200':
+          description: List of stage records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Stage'
+  /stages/{id}:
+    put:
+      tags:
+        - Stages
+      summary: Update stage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Stage'
+        required: true
+      responses:
+        '204':
+          description: Stage updated
+        '404':
+          description: Stage not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - Stages
+      summary: Delete stage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Stage deleted
+        '404':
+          description: Stage not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Stages
+      summary: Get stage by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Stage found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stage'
+        '404':
+          description: Stage not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /rallies:
+    post:
+      tags:
+        - Rallies
+      summary: Create rally
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rally'
+        required: true
+      responses:
+        '201':
+          description: Rally created
+    get:
+      tags:
+        - Rallies
+      summary: Get all rallies
+      responses:
+        '200':
+          description: List of rally records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rally'
+  /rallies/{id}:
+    put:
+      tags:
+        - Rallies
+      summary: Update rally
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rally'
+        required: true
+      responses:
+        '204':
+          description: Rally updated
+        '404':
+          description: Rally not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - Rallies
+      summary: Delete rally
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Rally deleted
+        '404':
+          description: Rally not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Rallies
+      summary: Get rally by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rally found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rally'
+        '404':
+          description: Rally not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /rallyEntries:
+    post:
+      tags:
+        - RallyEntries
+      summary: Create rallyEntry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RallyEntry'
+        required: true
+      responses:
+        '201':
+          description: RallyEntry created
+        '400':
+          description: 'Invalid request: missing required rally_id/crew_id and/or
+            one or more referenced IDs do not exist (rally, crew)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - RallyEntries
+      summary: Get all RallyEntries
+      responses:
+        '200':
+          description: List of RallyEntry records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RallyEntry'
+  /rallyEntries/{id}:
+    put:
+      tags:
+        - RallyEntries
+      summary: Update rallyEntry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RallyEntry'
+        required: true
+      responses:
+        '204':
+          description: RallyEntry updated
+        '404':
+          description: RallyEntry not found
+        '400':
+          description: 'Invalid request: missing required rally_id/crew_id and/or
+            one or more referenced IDs do not exist (rally, crew)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - RallyEntries
+      summary: Delete rallyEntry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: RallyEntry deleted
+        '404':
+          description: RallyEntry not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - RallyEntries
+      summary: Get RallyEntry by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: RallyEntry found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RallyEntry'
+        '404':
+          description: RallyEntry not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /rallyStageMaps:
+    post:
+      tags:
+        - RallyStageMaps
+      summary: Create rallyStageMap
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RallyStageMap'
+        required: true
+      responses:
+        '201':
+          description: RallyStageMap created
+        '400':
+          description: 'Invalid request: missing required rally_id/stage_id and/or
+            one or more referenced IDs do not exist (rally, stage)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - RallyStageMaps
+      summary: Get all RallyStageMaps
+      responses:
+        '200':
+          description: List of RallyStageMap records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RallyStageMap'
+  /rallyStageMaps/{id}:
+    put:
+      tags:
+        - RallyStageMaps
+      summary: Update rallyStageMap
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RallyStageMap'
+        required: true
+      responses:
+        '204':
+          description: RallyStageMap updated
+        '404':
+          description: RallyStageMap not found
+        '400':
+          description: 'Invalid request: missing required rally_id/stage_id and/or
+            one or more referenced IDs do not exist (rally, stage)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - RallyStageMaps
+      summary: Delete rallyStageMap
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: RallyStageMap deleted
+        '404':
+          description: RallyStageMap not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - RallyStageMaps
+      summary: Get RallyStageMap by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: RallyStageMap found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RallyStageMap'
+        '404':
+          description: RallyStageMap not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /teams:
+    post:
+      tags:
+        - Teams
+      summary: Create team
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+        required: true
+      responses:
+        '201':
+          description: Team created
+        '400':
+          description: Invalid manufacturer_id - manufacturer does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Teams
+      summary: Get all teams
+      responses:
+        '200':
+          description: List of team records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team'
+  /teams/{id}:
+    put:
+      tags:
+        - Teams
+      summary: Update team
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+        required: true
+      responses:
+        '204':
+          description: Team updated
+        '404':
+          description: Team not found
+        '400':
+          description: 'Invalid request: id must be an integer or manufacturer_id
+            does not exist'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - Teams
+      summary: Delete team
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Team deleted
+        '404':
+          description: Team not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Teams
+      summary: Get team by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Team found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '404':
+          description: Team not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /tips:
+    post:
+      tags:
+        - Tips
+      summary: Create tip
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tip'
+        required: true
+      responses:
+        '201':
+          description: Tip created
+    get:
+      tags:
+        - Tips
+      summary: Get all tips
+      responses:
+        '200':
+          description: List of tip records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tip'
+  /tips/{id}:
+    put:
+      tags:
+        - Tips
+      summary: Update tip
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tip'
+        required: true
+      responses:
+        '204':
+          description: Tip updated
+        '404':
+          description: Tip not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - Tips
+      summary: Delete tip
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Tip deleted
+        '404':
+          description: Tip not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Tips
+      summary: Get tip by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tip found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tip'
+        '404':
+          description: Tip not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /warnings:
+    post:
+      tags:
+        - Warnings
+      summary: Create warning
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Warning'
+        required: true
+      responses:
+        '201':
+          description: Warning created
+    get:
+      tags:
+        - Warnings
+      summary: Get all warnings
+      responses:
+        '200':
+          description: List of warning records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Warning'
+  /warnings/{id}:
+    put:
+      tags:
+        - Warnings
+      summary: Update warning
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Warning'
+        required: true
+      responses:
+        '204':
+          description: Warning updated
+        '404':
+          description: Warning not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    delete:
+      tags:
+        - Warnings
+      summary: Delete warning
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Warning deleted
+        '404':
+          description: Warning not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+    get:
+      tags:
+        - Warnings
+      summary: Get warning by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Warning found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Warning'
+        '404':
+          description: Warning not found
+        '400':
+          description: 'Invalid path parameter: id must be an integer'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+webhooks: {}
+components:
+  schemas:
+    Call:
+      type: object
+      title: com.racing.data.Call
+      properties:
+        call_id:
+          type:
+            - integer
+            - 'null'
+        note_id:
+          type:
+            - integer
+            - 'null'
+        sequence_number:
+          type:
+            - integer
+            - 'null'
+        gear:
+          type:
+            - integer
+            - 'null'
+        direction:
+          type:
+            - string
+            - 'null'
+        distance:
+          type:
+            - integer
+            - 'null'
+        intensity_id:
+          type:
+            - integer
+            - 'null'
+        warning_id:
+          type:
+            - integer
+            - 'null'
+        tip_id:
+          type:
+            - integer
+            - 'null'
+    ValidationIssue:
+      type: object
+      title: com.racing.data.ValidationIssue
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    ValidationErrorResponse:
+      type: object
+      title: com.racing.data.ValidationErrorResponse
+      required:
+        - details
+      properties:
+        error:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
+    Car:
+      type: object
+      title: com.racing.data.Car
+      required:
+        - name
+      properties:
+        car_id:
+          type:
+            - integer
+            - 'null'
+        name:
+          type: string
+        model_id:
+          type:
+            - integer
+            - 'null'
+    Crew:
+      type: object
+      title: com.racing.data.Crew
+      properties:
+        crew_id:
+          type:
+            - integer
+            - 'null'
+        driver_id:
+          type:
+            - integer
+            - 'null'
+        codriver_id:
+          type:
+            - integer
+            - 'null'
+        car_id:
+          type:
+            - integer
+            - 'null'
+        team_id:
+          type:
+            - integer
+            - 'null'
+    Codriver:
+      type: object
+      title: com.racing.data.Codriver
+      required:
+        - name
+      properties:
+        codriver_id:
+          type:
+            - integer
+            - 'null'
+        name:
+          type: string
+        number:
+          type:
+            - integer
+            - 'null'
+    Driver:
+      type: object
+      title: com.racing.data.Driver
+      required:
+        - name
+      properties:
+        driver_id:
+          type:
+            - integer
+            - 'null'
+        name:
+          type: string
+        number:
+          type:
+            - integer
+            - 'null'
+    Intensity:
+      type: object
+      title: com.racing.data.Intensity
+      required:
+        - name
+      properties:
+        intensity_id:
+          type:
+            - integer
+            - 'null'
+        name:
+          type: string
+    Manufacturer:
+      type: object
+      title: com.racing.data.Manufacturer
+      required:
+        - name
+      properties:
+        manufacturer_id:
+          type:
+            - integer
+            - 'null'
+        name:
+          type: string
+    Model:
+      type: object
+      title: com.racing.data.Model
+      required:
+        - name
+      properties:
+        model_id:
+          type:
+            - integer
+            - 'null'
+        name:
+          type: string
+        manufacturer_id:
+          type:
+            - integer
+            - 'null'
+    NoteSet:
+      type: object
+      title: com.racing.data.NoteSet
+      properties:
+        note_id:
+          type:
+            - integer
+            - 'null'
+        crew_id:
+          type:
+            - integer
+            - 'null'
+        name:
+          type:
+            - string
+            - 'null'
+        stage_id:
+          type:
+            - integer
+            - 'null'
+        conditions:
+          type:
+            - string
+            - 'null'
+    Stage:
+      type: object
+      title: com.racing.data.Stage
+      required:
+        - name
+      properties:
+        stage_id:
+          type:
+            - integer
+            - 'null'
+        name:
+          type: string
+        distance:
+          type:
+            - number
+            - 'null'
+    Rally:
+      type: object
+      title: com.racing.data.Rally
+      required:
+        - name
+        - date
+      properties:
+        rally_id:
+          type:
+            - integer
+            - 'null'
+        name:
+          type: string
+        date:
+          type: string
+          format: date
+    RallyEntry:
+      type: object
+      title: com.racing.data.RallyEntry
+      properties:
+        entry_id:
+          type:
+            - integer
+            - 'null'
+        rally_id:
+          type:
+            - integer
+            - 'null'
+        crew_id:
+          type:
+            - integer
+            - 'null'
+        car_number:
+          type:
+            - integer
+            - 'null'
+    RallyStageMap:
+      type: object
+      title: com.racing.data.RallyStageMap
+      properties:
+        rally_stage_id:
+          type:
+            - integer
+            - 'null'
+        rally_id:
+          type:
+            - integer
+            - 'null'
+        stage_id:
+          type:
+            - integer
+            - 'null'
+        stage_order:
+          type:
+            - integer
+            - 'null'
+    Team:
+      type: object
+      title: com.racing.data.Team
+      required:
+        - name
+      properties:
+        team_id:
+          type:
+            - integer
+            - 'null'
+        name:
+          type: string
+        manufacturer_id:
+          type:
+            - integer
+            - 'null'
+    Tip:
+      type: object
+      title: com.racing.data.Tip
+      required:
+        - description
+      properties:
+        tip_id:
+          type:
+            - integer
+            - 'null'
+        description:
+          type: string
+    Warning:
+      type: object
+      title: com.racing.data.Warning
+      required:
+        - description
+      properties:
+        warning_id:
+          type:
+            - integer
+            - 'null'
+        description:
+          type: string
