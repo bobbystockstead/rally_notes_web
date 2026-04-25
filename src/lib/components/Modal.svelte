@@ -17,7 +17,6 @@
 	}
 </script>
 
-/** * Modal component - reusable modal container with backdrop */
 {#if isOpen}
 	<dialog open class="modal-backdrop" onclick={handleDialogClick}>
 		<div class="modal-content">

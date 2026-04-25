@@ -1,18 +1,18 @@
 <script lang="ts">
-	import type { Driver, DriverInput, FieldErrors } from '../types/driver';
+	import type { Codriver, CodriverInput, FieldErrors } from '../types/codriver';
 	import LoadingSpinner from './LoadingSpinner.svelte';
 
 	interface Props {
-		initialData?: Driver;
+		initialData?: Codriver;
 		isLoading?: boolean;
 		fieldErrors?: FieldErrors;
-		onSubmit: (data: DriverInput) => void;
+		onSubmit: (data: CodriverInput) => void;
 		onCancel: () => void;
 	}
 
 	let { initialData, isLoading = false, fieldErrors = {}, onSubmit, onCancel }: Props = $props();
 
-	let formData = $state<DriverInput>({ name: '', number: null });
+	let formData = $state<CodriverInput>({ name: '', number: null });
 
 	$effect(() => {
 		formData = initialData
@@ -39,7 +39,7 @@
 			id="name"
 			type="text"
 			bind:value={formData.name}
-			placeholder="Driver name"
+			placeholder="Codriver name"
 			disabled={isLoading}
 			class:input-error={fieldErrors.name}
 		/>
@@ -54,7 +54,7 @@
 			id="number"
 			type="number"
 			bind:value={formData.number}
-			placeholder="Driver number"
+			placeholder="Codriver number"
 			disabled={isLoading}
 			class:input-error={fieldErrors.number}
 		/>

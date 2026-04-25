@@ -2,57 +2,62 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import type { Driver, DriverInput } from '$lib/types/driver';
-	import { ApiException } from '$lib/types/driver';
-	import { listDrivers, createDriver, updateDriver, deleteDriver } from '$lib/api/drivers';
+	import type { Codriver, CodriverInput } from '$lib/types/codriver';
+	import { ApiException } from '$lib/types/codriver';
+	import {
+		listCodrivers,
+		createCodriver,
+		updateCodriver,
+		deleteCodriver
+	} from '$lib/api/codrivers';
 	import type { FieldErrors } from '$lib/types/api';
 	import Modal from '$lib/components/Modal.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import ErrorAlert from '$lib/components/ErrorAlert.svelte';
-	import DriverForm from '$lib/components/DriverForm.svelte';
+	import CodriverForm from '$lib/components/CodriverForm.svelte';
 
-	let drivers: Driver[] = $state([]);
+	let codrivers: Codriver[] = $state([]);
 	let isLoading = $state(true);
 	let error: string | null = $state(null);
 	let showCreateModal = $state(false);
 	let showEditModal = $state(false);
-	let editingDriver: Driver | null = $state(null);
+	let editingCodriver: Codriver | null = $state(null);
 	let isSubmitting = $state(false);
 	let submitError: string | null = $state(null);
 	let fieldErrors = $state<FieldErrors>({});
 
 	onMount(async () => {
-		await fetchDrivers();
+		await fetchCodrivers();
 	});
 
-	async function fetchDrivers() {
+	async function fetchCodrivers() {
 		isLoading = true;
 		error = null;
 
 		try {
-			drivers = await listDrivers();
+			codrivers = await listCodrivers();
 		} catch (err) {
 			if (err instanceof ApiException) {
 				error = err.message;
 			} else {
-				error = 'Failed to load drivers. Please try again.';
+				error = 'Failed to load codrivers. Please try again.';
 			}
 		} finally {
 			isLoading = false;
 		}
 	}
 
-	async function handleCreateDriver(data: DriverInput) {
+	async function handleCreateCodriver(data: CodriverInput) {
 		isSubmitting = true;
 		submitError = null;
 		fieldErrors = {};
 
 		try {
-			const newDriver = await createDriver(data);
-			drivers = [...drivers, newDriver];
+			const newCodriver = await createCodriver(data);
+			codrivers = [...codrivers, newCodriver];
 			showCreateModal = false;
-			// Navigate to the newly created driver's detail page
-			await goto(resolve('/drivers/[id]', { id: String(newDriver.driver_id) }));
+			// Navigate to the newly created codriver's detail page
+			await goto(resolve('/codrivers/[id]', { id: String(newCodriver.codriver_id) }));
 		} catch (err) {
 			if (err instanceof ApiException) {
 				submitError = err.message;
@@ -60,15 +65,15 @@
 					fieldErrors = err.fieldErrors;
 				}
 			} else {
-				submitError = 'Failed to create driver. Please try again.';
+				submitError = 'Failed to create codriver. Please try again.';
 			}
 		} finally {
 			isSubmitting = false;
 		}
 	}
 
-	function openEditModal(driver: Driver) {
-		editingDriver = driver;
+	function openEditModal(codriver: Codriver) {
+		editingCodriver = codriver;
 		showEditModal = true;
 		submitError = null;
 		fieldErrors = {};
@@ -76,13 +81,13 @@
 
 	function closeEditModal() {
 		showEditModal = false;
-		editingDriver = null;
+		editingCodriver = null;
 		submitError = null;
 		fieldErrors = {};
 	}
 
-	async function handleUpdateDriver(data: DriverInput) {
-		if (!editingDriver) {
+	async function handleUpdateCodriver(data: CodriverInput) {
+		if (!editingCodriver) {
 			return;
 		}
 
@@ -91,10 +96,10 @@
 		fieldErrors = {};
 
 		try {
-			const editingDriverId = editingDriver.driver_id;
-			await updateDriver(editingDriverId, data);
-			drivers = drivers.map((driver) =>
-				driver.driver_id === editingDriverId ? { ...driver, ...data } : driver
+			const editingCodriverId = editingCodriver.codriver_id;
+			await updateCodriver(editingCodriverId, data);
+			codrivers = codrivers.map((codriver) =>
+				codriver.codriver_id === editingCodriverId ? { ...codriver, ...data } : codriver
 			);
 			closeEditModal();
 		} catch (err) {
@@ -104,31 +109,33 @@
 					fieldErrors = err.fieldErrors;
 				}
 			} else {
-				submitError = 'Failed to update driver. Please try again.';
+				submitError = 'Failed to update codriver. Please try again.';
 			}
 		} finally {
 			isSubmitting = false;
 		}
 	}
 
-	async function handleDeleteDriver(id: number) {
-		if (!confirm('Are you sure you want to delete this driver?')) {
+	async function handleDeleteCodriver(id: number) {
+		if (!confirm('Are you sure you want to delete this codriver?')) {
 			return;
 		}
 
 		try {
-			await deleteDriver(id);
-			drivers = drivers.filter((d) => d.driver_id !== id);
+			await deleteCodriver(id);
+			codrivers = codrivers.filter((d) => d.codriver_id !== id);
 		} catch (err) {
-			error = err instanceof ApiException ? err.message : 'Failed to delete driver';
+			error = err instanceof ApiException ? err.message : 'Failed to delete codriver';
 		}
 	}
 </script>
 
 <div class="container">
 	<div class="page-header">
-		<h1 class="page-title">Drivers</h1>
-		<button class="btn btn-primary" onclick={() => (showCreateModal = true)}> + New Driver </button>
+		<h1 class="page-title">Codrivers</h1>
+		<button class="btn btn-primary" onclick={() => (showCreateModal = true)}>
+			+ New Codriver
+		</button>
 	</div>
 
 	{#if error}
@@ -139,13 +146,13 @@
 		<div style="display: flex; justify-content: center; padding: 2rem;">
 			<LoadingSpinner size="large" />
 		</div>
-	{:else if drivers.length === 0}
+	{:else if codrivers.length === 0}
 		<div class="empty-state">
 			<div class="empty-state-icon">🏁</div>
-			<h3>No drivers yet</h3>
-			<p>Create your first driver to get started managing rally racing teams.</p>
+			<h3>No codrivers yet</h3>
+			<p>Create your first codriver to get started managing rally racing teams.</p>
 			<button class="btn btn-primary" onclick={() => (showCreateModal = true)}>
-				Create First Driver
+				Create First Codriver
 			</button>
 		</div>
 	{:else}
@@ -160,25 +167,25 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each drivers as driver (driver.driver_id)}
+					{#each codrivers as codriver (codriver.codriver_id)}
 						<tr>
-							<td>{driver.driver_id}</td>
-							<td>{driver.name}</td>
-							<td>{driver.number ?? '—'}</td>
+							<td>{codriver.codriver_id}</td>
+							<td>{codriver.name}</td>
+							<td>{codriver.number ?? '—'}</td>
 							<td>
 								<div class="action-buttons">
 									<a
-										href={resolve('/drivers/[id]', { id: String(driver.driver_id) })}
+										href={resolve('/codrivers/[id]', { id: String(codriver.codriver_id) })}
 										class="btn btn-sm btn-primary"
 									>
 										View
 									</a>
-									<button class="btn btn-sm btn-secondary" onclick={() => openEditModal(driver)}>
+									<button class="btn btn-sm btn-secondary" onclick={() => openEditModal(codriver)}>
 										Edit
 									</button>
 									<button
 										class="btn btn-sm btn-danger"
-										onclick={() => handleDeleteDriver(driver.driver_id)}
+										onclick={() => handleDeleteCodriver(codriver.codriver_id)}
 									>
 										Delete
 									</button>
@@ -193,7 +200,7 @@
 
 	<Modal
 		isOpen={showCreateModal}
-		title="Create New Driver"
+		title="Create New Codriver"
 		onClose={() => {
 			showCreateModal = false;
 			submitError = null;
@@ -203,10 +210,10 @@
 		{#if submitError}
 			<ErrorAlert message={submitError} />
 		{/if}
-		<DriverForm
+		<CodriverForm
 			isLoading={isSubmitting}
 			{fieldErrors}
-			onSubmit={handleCreateDriver}
+			onSubmit={handleCreateCodriver}
 			onCancel={() => {
 				showCreateModal = false;
 				submitError = null;
@@ -215,16 +222,16 @@
 		/>
 	</Modal>
 
-	<Modal isOpen={showEditModal} title="Edit Driver" onClose={closeEditModal}>
+	<Modal isOpen={showEditModal} title="Edit Codriver" onClose={closeEditModal}>
 		{#if submitError}
 			<ErrorAlert message={submitError} />
 		{/if}
-		{#if editingDriver}
-			<DriverForm
-				initialData={editingDriver}
+		{#if editingCodriver}
+			<CodriverForm
+				initialData={editingCodriver}
 				isLoading={isSubmitting}
 				{fieldErrors}
-				onSubmit={handleUpdateDriver}
+				onSubmit={handleUpdateCodriver}
 				onCancel={closeEditModal}
 			/>
 		{/if}

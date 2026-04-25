@@ -2,18 +2,18 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import type { Driver, DriverInput } from '$lib/types/driver';
-	import { ApiException } from '$lib/types/driver';
-	import { getDriver, updateDriver, deleteDriver } from '$lib/api/drivers';
+	import type { Codriver, CodriverInput } from '$lib/types/codriver';
+	import { ApiException } from '$lib/types/codriver';
+	import { getCodriver, updateCodriver, deleteCodriver } from '$lib/api/codrivers';
 	import Modal from '$lib/components/Modal.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import ErrorAlert from '$lib/components/ErrorAlert.svelte';
-	import DriverForm from '$lib/components/DriverForm.svelte';
+	import CodriverForm from '$lib/components/CodriverForm.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
-	let driver: Driver | null = $state(null);
+	let codriver: Codriver | null = $state(null);
 	let isLoading = $state(true);
 	let error: string | null = $state(null);
 	let showEditModal = $state(false);
@@ -22,40 +22,40 @@
 	let fieldErrors = $state({});
 
 	onMount(async () => {
-		await fetchDriver(data.driverId);
+		await fetchCodriver(data.codriverId);
 	});
 
-	async function fetchDriver(id: number) {
+	async function fetchCodriver(id: number) {
 		isLoading = true;
 		error = null;
 
 		try {
-			driver = await getDriver(id);
+			codriver = await getCodriver(id);
 		} catch (err) {
 			if (err instanceof ApiException) {
 				if (err.statusCode === 404) {
-					error = 'Driver not found';
+					error = 'Codriver not found';
 				} else {
 					error = err.message;
 				}
 			} else {
-				error = 'Failed to load driver. Please try again.';
+				error = 'Failed to load codriver. Please try again.';
 			}
 		} finally {
 			isLoading = false;
 		}
 	}
 
-	async function handleUpdateDriver(data: DriverInput) {
-		if (!driver) return;
+	async function handleUpdateCodriver(data: CodriverInput) {
+		if (!codriver) return;
 
 		isSubmitting = true;
 		submitError = null;
 		fieldErrors = {};
 
 		try {
-			await updateDriver(driver.driver_id, data);
-			driver = { ...driver, ...data };
+			await updateCodriver(codriver.codriver_id, data);
+			codriver = { ...codriver, ...data };
 			showEditModal = false;
 		} catch (err) {
 			if (err instanceof ApiException) {
@@ -64,25 +64,25 @@
 					fieldErrors = err.fieldErrors;
 				}
 			} else {
-				submitError = 'Failed to update driver. Please try again.';
+				submitError = 'Failed to update codriver. Please try again.';
 			}
 		} finally {
 			isSubmitting = false;
 		}
 	}
 
-	async function handleDeleteDriver() {
-		if (!driver) return;
+	async function handleDeleteCodriver() {
+		if (!codriver) return;
 
-		if (!confirm('Are you sure you want to delete this driver?')) {
+		if (!confirm('Are you sure you want to delete this codriver?')) {
 			return;
 		}
 
 		try {
-			await deleteDriver(driver.driver_id);
-			await goto(resolve('/drivers'));
+			await deleteCodriver(codriver.codriver_id);
+			await goto(resolve('/codrivers'));
 		} catch (err) {
-			error = err instanceof ApiException ? err.message : 'Failed to delete driver';
+			error = err instanceof ApiException ? err.message : 'Failed to delete codriver';
 		}
 	}
 </script>
@@ -98,39 +98,39 @@
 		<div style="display: flex; justify-content: center; padding: 2rem;">
 			<LoadingSpinner size="large" />
 		</div>
-	{:else if driver}
+	{:else if codriver}
 		<div class="page-header">
 			<div>
-				<a href={resolve('/drivers')} class="back-link">← Back to Drivers</a>
-				<h1 class="page-title">{driver.name}</h1>
+				<a href={resolve('/codrivers')} class="back-link">← Back to Codrivers</a>
+				<h1 class="page-title">{codriver.name}</h1>
 			</div>
 			<div style="display: flex; gap: 0.5rem;">
 				<button class="btn btn-primary" onclick={() => (showEditModal = true)}> Edit </button>
-				<button class="btn btn-danger" onclick={handleDeleteDriver}> Delete </button>
+				<button class="btn btn-danger" onclick={handleDeleteCodriver}> Delete </button>
 			</div>
 		</div>
 
-		<div class="driver-card">
-			<div class="driver-field">
-				<span class="label">Driver ID</span>
-				<p>{driver.driver_id}</p>
+		<div class="codriver-card">
+			<div class="codriver-field">
+				<span class="label">Codriver ID</span>
+				<p>{codriver.codriver_id}</p>
 			</div>
-			<div class="driver-field">
+			<div class="codriver-field">
 				<span class="label">Name</span>
-				<p>{driver.name}</p>
+				<p>{codriver.name}</p>
 			</div>
-			<div class="driver-field">
-				<span class="label">Driver Number</span>
-				<p>{driver.number ?? '—'}</p>
+			<div class="codriver-field">
+				<span class="label">Codriver Number</span>
+				<p>{codriver.number ?? '—'}</p>
 			</div>
 		</div>
 	{:else}
-		<p>Driver not found.</p>
+		<p>Codriver not found.</p>
 	{/if}
 
 	<Modal
 		isOpen={showEditModal}
-		title="Edit Driver"
+		title="Edit Codriver"
 		onClose={() => {
 			showEditModal = false;
 			submitError = null;
@@ -140,12 +140,12 @@
 		{#if submitError}
 			<ErrorAlert message={submitError} />
 		{/if}
-		{#if driver}
-			<DriverForm
-				initialData={driver}
+		{#if codriver}
+			<CodriverForm
+				initialData={codriver}
 				isLoading={isSubmitting}
 				{fieldErrors}
-				onSubmit={handleUpdateDriver}
+				onSubmit={handleUpdateCodriver}
 				onCancel={() => {
 					showEditModal = false;
 					submitError = null;
@@ -168,7 +168,7 @@
 		text-decoration: underline;
 	}
 
-	.driver-card {
+	.codriver-card {
 		background-color: var(--color-bg-secondary);
 		border: 1px solid var(--color-border);
 		border-radius: 8px;
@@ -178,19 +178,19 @@
 		gap: 2rem;
 	}
 
-	.driver-field {
+	.codriver-field {
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
 	}
 
-	.driver-field .label {
+	.codriver-field .label {
 		font-weight: 600;
 		color: var(--color-text);
 		margin-bottom: 0;
 	}
 
-	.driver-field p {
+	.codriver-field p {
 		margin: 0;
 		color: var(--color-text);
 		font-size: 1.1rem;
@@ -212,7 +212,7 @@
 			flex-direction: column;
 		}
 
-		.driver-card {
+		.codriver-card {
 			grid-template-columns: 1fr;
 		}
 

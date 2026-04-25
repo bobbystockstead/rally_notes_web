@@ -7,8 +7,6 @@
 	let { message, onDismiss }: Props = $props();
 </script>
 
-/** * Error alert component - displays error messages */
-
 <div class="error-alert">
 	<div class="error-icon">⚠️</div>
 	<div class="error-content">

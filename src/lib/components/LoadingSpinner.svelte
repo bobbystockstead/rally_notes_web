@@ -6,8 +6,6 @@
 	let { size = 'medium' }: Props = $props();
 </script>
 
-/** * Loading spinner component */
-
 <div class="spinner spinner-{size}" role="status" aria-label="Loading">
 	<span class="visually-hidden">Loading...</span>
 </div>
