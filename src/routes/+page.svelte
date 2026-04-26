@@ -5,17 +5,23 @@
 
 	type ResourceLink = {
 		label: string;
-		path?: '/drivers' | '/codrivers' | '/manufacturers' | '/intensities';
+		path?: '/codrivers' | '/drivers' | '/intensities' | '/manufacturers' | '/warnings';
 		description: string;
 		enabled: boolean;
 	};
 
 	const resources: ResourceLink[] = [
-		{ label: 'Drivers', path: '/drivers', description: 'Manage driver records', enabled: true },
 		{
 			label: 'Codrivers',
 			path: '/codrivers',
 			description: 'Manage codriver records',
+			enabled: true
+		},
+		{ label: 'Drivers', path: '/drivers', description: 'Manage driver records', enabled: true },
+		{
+			label: 'Intensities',
+			path: '/intensities',
+			description: 'Manage intensity records',
 			enabled: true
 		},
 		{
@@ -25,9 +31,9 @@
 			enabled: true
 		},
 		{
-			label: 'Intensities',
-			path: '/intensities',
-			description: 'Manage intensity records',
+			label: 'Warnings',
+			path: '/warnings',
+			description: 'Manage warning records',
 			enabled: true
 		},
 		{ label: 'Cars', description: 'Manage car records', enabled: false },
