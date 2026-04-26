@@ -1,0 +1,166 @@
+<script lang="ts">
+	import type { Tip, TipInput, FieldErrors } from '../types/tip';
+	import LoadingSpinner from './LoadingSpinner.svelte';
+
+	interface Props {
+		initialData?: Tip;
+		isLoading?: boolean;
+		fieldErrors?: FieldErrors;
+		onSubmit: (data: TipInput) => void;
+		onCancel: () => void;
+	}
+
+	let { initialData, isLoading = false, fieldErrors = {}, onSubmit, onCancel }: Props = $props();
+
+	let formData = $state<TipInput>({ description: '' });
+
+	$effect(() => {
+		formData = initialData ? { description: initialData.description } : { description: '' };
+	});
+
+	const isEditMode = $derived(!!initialData);
+	const isFormEmpty = $derived(!formData.description.trim());
+
+	function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		if (isFormEmpty) {
+			return;
+		}
+		onSubmit(formData);
+	}
+</script>
+
+<form onsubmit={handleSubmit}>
+	<div class="form-group">
+		<label for="description">Description *</label>
+		<input
+			id="description"
+			type="text"
+			bind:value={formData.description}
+			placeholder="Tip description"
+			disabled={isLoading}
+			class:input-error={fieldErrors.description}
+		/>
+		{#if fieldErrors.description}
+			<span class="field-error">{fieldErrors.description}</span>
+		{/if}
+	</div>
+
+	<div class="form-actions">
+		<button type="submit" disabled={isLoading || isFormEmpty} class="btn btn-primary">
+			{#if isLoading}
+				<span class="btn-spinner">
+					<LoadingSpinner size="small" />
+				</span>
+			{/if}
+			{isEditMode ? 'Update' : 'Create'}
+		</button>
+		<button type="button" onclick={onCancel} disabled={isLoading} class="btn btn-secondary">
+			Cancel
+		</button>
+	</div>
+</form>
+
+<style>
+	form {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.form-group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	label {
+		font-weight: 600;
+		color: var(--color-text);
+		font-size: 0.95rem;
+	}
+
+	input {
+		padding: 0.75rem;
+		border: 1px solid var(--color-border);
+		border-radius: 4px;
+		font-size: 1rem;
+		color: var(--color-text);
+		background-color: var(--color-input-bg);
+		transition:
+			border-color 0.2s,
+			box-shadow 0.2s;
+	}
+
+	input:focus {
+		outline: none;
+		border-color: var(--color-primary);
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+
+	input:disabled {
+		background-color: var(--color-bg-secondary);
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+
+	input.input-error {
+		border-color: var(--color-error);
+	}
+
+	.field-error {
+		color: var(--color-error);
+		font-size: 0.85rem;
+		margin-top: 0.25rem;
+	}
+
+	.form-actions {
+		display: flex;
+		gap: 1rem;
+		justify-content: flex-end;
+		margin-top: 1rem;
+	}
+
+	.btn {
+		padding: 0.75rem 1.5rem;
+		font-size: 1rem;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		font-weight: 600;
+		transition: all 0.2s;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.btn:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	.btn-primary {
+		background-color: var(--color-primary);
+		color: white;
+	}
+
+	.btn-primary:hover:not(:disabled) {
+		background-color: var(--color-primary-dark);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+	}
+
+	.btn-secondary {
+		background-color: var(--color-border);
+		color: var(--color-text);
+	}
+
+	.btn-secondary:hover:not(:disabled) {
+		background-color: var(--color-bg-secondary);
+	}
+
+	.btn-spinner {
+		display: flex;
+		align-items: center;
+	}
+</style>
