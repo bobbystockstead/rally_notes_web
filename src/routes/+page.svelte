@@ -5,7 +5,7 @@
 
 	type ResourceLink = {
 		label: string;
-		path?: '/codrivers' | '/drivers' | '/intensities' | '/manufacturers' | '/warnings';
+		path?: '/codrivers' | '/drivers' | '/intensities' | '/manufacturers' | '/tips' | '/warnings';
 		description: string;
 		enabled: boolean;
 	};
@@ -28,6 +28,12 @@
 			label: 'Manufacturers',
 			path: '/manufacturers',
 			description: 'Manage manufacturer records',
+			enabled: true
+		},
+		{
+			label: 'Tips',
+			path: '/tips',
+			description: 'Manage tip records',
 			enabled: true
 		},
 		{
