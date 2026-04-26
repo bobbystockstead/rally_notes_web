@@ -27,7 +27,7 @@
 		{
 			label: 'Intensities',
 			path: '/intensities',
-			description: 'Manage Intensity records',
+			description: 'Manage intensity records',
 			enabled: true
 		},
 		{ label: 'Cars', description: 'Manage car records', enabled: false },

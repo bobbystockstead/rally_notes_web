@@ -37,7 +37,7 @@ export async function updateIntensity(id: number, input: IntensityInput): Promis
 }
 
 /**
- * Delete a intensity by ID
+ * Delete an intensity by ID
  */
 export async function deleteIntensity(id: number): Promise<void> {
 	return intensitiesApi.remove(id);

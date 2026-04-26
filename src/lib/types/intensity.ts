@@ -1,5 +1,5 @@
 /**
- * Intensities type definitions matching the Ktor backend schema
+ * Intensity type definitions matching the Ktor backend schema
  */
 
 import type { ValidationIssue, ValidationErrorResponse as ApiError, FieldErrors } from './api';
