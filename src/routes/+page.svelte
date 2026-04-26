@@ -5,7 +5,14 @@
 
 	type ResourceLink = {
 		label: string;
-		path?: '/codrivers' | '/drivers' | '/intensities' | '/manufacturers' | '/tips' | '/warnings';
+		path?:
+			| '/codrivers'
+			| '/drivers'
+			| '/intensities'
+			| '/manufacturers'
+			| '/stages'
+			| '/tips'
+			| '/warnings';
 		description: string;
 		enabled: boolean;
 	};
@@ -28,6 +35,12 @@
 			label: 'Manufacturers',
 			path: '/manufacturers',
 			description: 'Manage manufacturer records',
+			enabled: true
+		},
+		{
+			label: 'Stages',
+			path: '/stages',
+			description: 'Manage stage records',
 			enabled: true
 		},
 		{
