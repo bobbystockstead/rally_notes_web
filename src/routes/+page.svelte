@@ -10,6 +10,7 @@
 			| '/drivers'
 			| '/intensities'
 			| '/manufacturers'
+			| '/rallies'
 			| '/stages'
 			| '/tips'
 			| '/warnings';
@@ -38,6 +39,12 @@
 			enabled: true
 		},
 		{
+			label: 'Rallies',
+			path: '/rallies',
+			description: 'Manage rally records',
+			enabled: true
+		},
+		{
 			label: 'Stages',
 			path: '/stages',
 			description: 'Manage stage records',
@@ -56,8 +63,7 @@
 			enabled: true
 		},
 		{ label: 'Cars', description: 'Manage car records', enabled: false },
-		{ label: 'Teams', description: 'Manage team records', enabled: false },
-		{ label: 'Rallies', description: 'Manage rally events', enabled: false }
+		{ label: 'Teams', description: 'Manage team records', enabled: false }
 	];
 
 	function openResource(resource: ResourceLink) {
