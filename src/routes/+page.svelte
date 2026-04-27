@@ -6,7 +6,9 @@
 	type ResourceLink = {
 		label: string;
 		path?:
+			| '/cars'
 			| '/codrivers'
+			| '/crews'
 			| '/drivers'
 			| '/intensities'
 			| '/manufacturers'
@@ -22,9 +24,21 @@
 
 	const resources: ResourceLink[] = [
 		{
+			label: 'Cars',
+			path: '/cars',
+			description: 'Manage car records',
+			enabled: true
+		},
+		{
 			label: 'Codrivers',
 			path: '/codrivers',
 			description: 'Manage codriver records',
+			enabled: true
+		},
+		{
+			label: 'Crews',
+			path: '/crews',
+			description: 'Manage crew records',
 			enabled: true
 		},
 		{
@@ -80,8 +94,7 @@
 			path: '/warnings',
 			description: 'Manage warning records',
 			enabled: true
-		},
-		{ label: 'Cars', description: 'Manage car records', enabled: false }
+		}
 	];
 
 	function openResource(resource: ResourceLink) {
