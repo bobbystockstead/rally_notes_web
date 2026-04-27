@@ -193,16 +193,8 @@
 					{#each crews as crew (crew.crew_id)}
 						<tr>
 							<td>{crew.crew_id}</td>
-							<td>
-								{crew.driver_id === null
-									? '—'
-									: (driverNamesById[crew.driver_id] ?? `ID ${crew.driver_id}`)}
-							</td>
-							<td>
-								{crew.codriver_id === null
-									? '—'
-									: (codriverNamesById[crew.codriver_id] ?? `ID ${crew.codriver_id}`)}
-							</td>
+							<td>{driverNamesById[crew.driver_id] ?? `ID ${crew.driver_id}`}</td>
+							<td>{codriverNamesById[crew.codriver_id] ?? `ID ${crew.codriver_id}`}</td>
 							<td>
 								{crew.car_id === null ? '—' : (carNamesById[crew.car_id] ?? `ID ${crew.car_id}`)}
 							</td>
