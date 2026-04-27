@@ -140,7 +140,8 @@
 		opacity: 0.6;
 	}
 
-	input.input-error {
+	input.input-error,
+	select.input-error {
 		border-color: var(--color-error);
 	}
 

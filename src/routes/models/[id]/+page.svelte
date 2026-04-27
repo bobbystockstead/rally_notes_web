@@ -17,13 +17,27 @@
 
 	let model: Model | null = $state(null);
 	let manufacturers: Manufacturer[] = $state([]);
-	let manufacturerName: string | null = $state(null);
 	let isLoading = $state(true);
 	let error: string | null = $state(null);
 	let showEditModal = $state(false);
 	let isSubmitting = $state(false);
 	let submitError: string | null = $state(null);
 	let fieldErrors = $state({});
+
+	const manufacturerNamesById = $derived(
+		Object.fromEntries(
+			manufacturers.map((manufacturer) => [manufacturer.manufacturer_id, manufacturer.name])
+		)
+	);
+
+	const modelManufacturerName = $derived.by(() => {
+		const manufacturerId = model?.manufacturer_id;
+		if (manufacturerId == null) {
+			return null;
+		}
+
+		return manufacturerNamesById[manufacturerId] ?? null;
+	});
 
 	onMount(async () => {
 		await fetchModel(data.modelId);
@@ -32,7 +46,6 @@
 	async function fetchModel(id: number) {
 		isLoading = true;
 		error = null;
-		manufacturerName = null;
 
 		try {
 			const [modelResult, manufacturersResult] = await Promise.all([
@@ -41,12 +54,6 @@
 			]);
 			model = modelResult;
 			manufacturers = manufacturersResult;
-			if (modelResult.manufacturer_id != null) {
-				manufacturerName =
-					manufacturers.find(
-						(manufacturer) => manufacturer.manufacturer_id === modelResult.manufacturer_id
-					)?.name ?? null;
-			}
 		} catch (err) {
 			if (err instanceof ApiException) {
 				if (err.statusCode === 404) {
@@ -137,7 +144,7 @@
 			</div>
 			<div class="model-field">
 				<span class="label">Model Manufacturer</span>
-				<p>{manufacturerName ?? model.manufacturer_id ?? '—'}</p>
+				<p>{modelManufacturerName ?? model.manufacturer_id ?? '—'}</p>
 			</div>
 		</div>
 	{:else}
