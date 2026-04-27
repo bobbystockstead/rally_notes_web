@@ -10,8 +10,10 @@
 			| '/drivers'
 			| '/intensities'
 			| '/manufacturers'
+			| '/models'
 			| '/rallies'
 			| '/stages'
+			| '/teams'
 			| '/tips'
 			| '/warnings';
 		description: string;
@@ -25,7 +27,12 @@
 			description: 'Manage codriver records',
 			enabled: true
 		},
-		{ label: 'Drivers', path: '/drivers', description: 'Manage driver records', enabled: true },
+		{
+			label: 'Drivers',
+			path: '/drivers',
+			description: 'Manage driver records',
+			enabled: true
+		},
 		{
 			label: 'Intensities',
 			path: '/intensities',
@@ -36,6 +43,12 @@
 			label: 'Manufacturers',
 			path: '/manufacturers',
 			description: 'Manage manufacturer records',
+			enabled: true
+		},
+		{
+			label: 'Models',
+			path: '/models',
+			description: 'Manage model records',
 			enabled: true
 		},
 		{
@@ -51,6 +64,12 @@
 			enabled: true
 		},
 		{
+			label: 'Teams',
+			path: '/teams',
+			description: 'Manage team records',
+			enabled: true
+		},
+		{
 			label: 'Tips',
 			path: '/tips',
 			description: 'Manage tip records',
@@ -62,8 +81,7 @@
 			description: 'Manage warning records',
 			enabled: true
 		},
-		{ label: 'Cars', description: 'Manage car records', enabled: false },
-		{ label: 'Teams', description: 'Manage team records', enabled: false }
+		{ label: 'Cars', description: 'Manage car records', enabled: false }
 	];
 
 	function openResource(resource: ResourceLink) {
