@@ -98,6 +98,7 @@
 			<span class="field-error">{fieldErrors.driver_id}</span>
 		{/if}
 	</div>
+
 	<div class="form-group">
 		<label for="codriver_id">Codriver</label>
 		<select
