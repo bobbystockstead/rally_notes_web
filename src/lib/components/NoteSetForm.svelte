@@ -1,64 +1,104 @@
 <script lang="ts">
-	import type { Model, ModelInput, FieldErrors } from '../types/model';
-	import type { Manufacturer } from '../types/manufacturer';
+	import type { NoteSet, NoteSetInput, FieldErrors } from '../types/noteSet';
+	import type { Crew } from '../types/crew';
+	import type { Stage } from '../types/stage';
 	import LoadingSpinner from './LoadingSpinner.svelte';
 
 	interface Props {
-		initialData?: Model;
-		manufacturerOptions?: Manufacturer[];
+		initialData?: NoteSet;
+		crewOptions?: Crew[];
+		stageOptions?: Stage[];
 		isLoading?: boolean;
 		fieldErrors?: FieldErrors;
-		onSubmit: (data: ModelInput) => void;
+		onSubmit: (data: NoteSetInput) => void;
 		onCancel: () => void;
 	}
 
 	let {
 		initialData,
-		manufacturerOptions = [],
+		crewOptions = [],
+		stageOptions = [],
 		isLoading = false,
 		fieldErrors = {},
 		onSubmit,
 		onCancel
 	}: Props = $props();
 
-	type ModelFormData = {
+	type NoteSetFormData = {
+		crew_id: number | null;
 		name: string;
-		manufacturer_id: number | null;
+		stage_id: number | null;
+		conditions: string | null;
 	};
 
-	let formData = $state<ModelFormData>({ name: '', manufacturer_id: null });
+	let formData = $state<NoteSetFormData>({
+		crew_id: null,
+		name: '',
+		stage_id: null,
+		conditions: ''
+	});
 
 	$effect(() => {
 		formData = initialData
-			? { name: initialData.name, manufacturer_id: initialData.manufacturer_id }
-			: { name: '', manufacturer_id: null };
+			? {
+					crew_id: initialData.crew_id,
+					name: initialData.name,
+					stage_id: initialData.stage_id,
+					conditions: initialData.conditions
+				}
+			: { crew_id: null, name: '', stage_id: null, conditions: '' };
 	});
 
 	const isEditMode = $derived(!!initialData);
+	const isFormInvalid = $derived(formData.crew_id === null || formData.stage_id === null);
 	const isFormEmpty = $derived(!formData.name.trim());
-	const isFormInvalid = $derived(isFormEmpty || formData.manufacturer_id === null);
 
 	function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
-		const manufacturerId = formData.manufacturer_id;
-		if (isFormInvalid || manufacturerId === null) {
+		const crewId = formData.crew_id;
+		const stageId = formData.stage_id;
+		if (isFormEmpty || crewId === null || stageId === null) {
 			return;
 		}
 		onSubmit({
+			crew_id: crewId,
 			name: formData.name,
-			manufacturer_id: manufacturerId
+			stage_id: stageId,
+			conditions: formData.conditions
 		});
 	}
 </script>
 
 <form onsubmit={handleSubmit}>
 	<div class="form-group">
+		<label for="crew_id">Crew</label>
+		<select
+			id="crew_id"
+			value={formData.crew_id === null ? '' : String(formData.crew_id)}
+			onchange={(event) => {
+				const value = (event.currentTarget as HTMLSelectElement).value;
+				formData.crew_id = value === '' ? null : Number(value);
+			}}
+			disabled={isLoading}
+			class:input-error={fieldErrors.crew_id}
+		>
+			<option value="">No crew</option>
+			{#each crewOptions as crew (crew.crew_id)}
+				<option value={String(crew.crew_id)}>{crew.crew_id}</option>
+			{/each}
+		</select>
+		{#if fieldErrors.crew_id}
+			<span class="field-error">{fieldErrors.crew_id}</span>
+		{/if}
+	</div>
+
+	<div class="form-group">
 		<label for="name">Name *</label>
 		<input
 			id="name"
 			type="text"
 			bind:value={formData.name}
-			placeholder="Model name"
+			placeholder="NoteSet name"
 			disabled={isLoading}
 			class:input-error={fieldErrors.name}
 		/>
@@ -68,30 +108,49 @@
 	</div>
 
 	<div class="form-group">
-		<label for="manufacturer_id">Manufacturer *</label>
+		<label for="stage_id">Stage</label>
 		<select
-			id="manufacturer_id"
-			value={formData.manufacturer_id === null ? '' : String(formData.manufacturer_id)}
+			id="stage_id"
+			value={formData.stage_id === null ? '' : String(formData.stage_id)}
 			onchange={(event) => {
 				const value = (event.currentTarget as HTMLSelectElement).value;
-				formData.manufacturer_id = value === '' ? null : Number(value);
+				formData.stage_id = value === '' ? null : Number(value);
 			}}
 			required
 			disabled={isLoading}
-			class:input-error={fieldErrors.manufacturer_id}
+			class:input-error={fieldErrors.stage_id}
 		>
-			<option value="">Select manufacturer</option>
-			{#each manufacturerOptions as manufacturer (manufacturer.manufacturer_id)}
-				<option value={String(manufacturer.manufacturer_id)}>{manufacturer.name}</option>
+			<option value="">Select stage</option>
+			{#each stageOptions as stage (stage.stage_id)}
+				<option value={String(stage.stage_id)}>{stage.name}</option>
 			{/each}
 		</select>
-		{#if fieldErrors.manufacturer_id}
-			<span class="field-error">{fieldErrors.manufacturer_id}</span>
+		{#if fieldErrors.stage_id}
+			<span class="field-error">{fieldErrors.stage_id}</span>
+		{/if}
+	</div>
+
+	<div class="form-group">
+		<label for="conditions">Conditions</label>
+		<input
+			id="conditions"
+			type="text"
+			bind:value={formData.conditions}
+			placeholder="NoteSet conditions"
+			disabled={isLoading}
+			class:input-error={fieldErrors.conditions}
+		/>
+		{#if fieldErrors.conditions}
+			<span class="field-error">{fieldErrors.conditions}</span>
 		{/if}
 	</div>
 
 	<div class="form-actions">
-		<button type="submit" disabled={isLoading || isFormInvalid} class="btn btn-primary">
+		<button
+			type="submit"
+			disabled={isLoading || isFormInvalid || isFormEmpty}
+			class="btn btn-primary"
+		>
 			{#if isLoading}
 				<span class="btn-spinner">
 					<LoadingSpinner size="small" />

@@ -13,6 +13,7 @@
 			| '/intensities'
 			| '/manufacturers'
 			| '/models'
+			| '/notesets'
 			| '/rallies'
 			| '/rallyentries'
 			| '/rallystagemaps'
@@ -68,6 +69,12 @@
 			enabled: true
 		},
 		{
+			label: 'Note Sets',
+			path: '/notesets',
+			description: 'Manage note set records',
+			enabled: true
+		},
+		{
 			label: 'Rallies',
 			path: '/rallies',
 			description: 'Manage rally records',
@@ -76,13 +83,13 @@
 		{
 			label: 'Rally Entries',
 			path: '/rallyentries',
-			description: 'Manage rallyEntry records',
+			description: 'Manage rally entry records',
 			enabled: true
 		},
 		{
 			label: 'Rally Stage Maps',
 			path: '/rallystagemaps',
-			description: 'Manage rallyStageMap records',
+			description: 'Manage rally stage map records',
 			enabled: true
 		},
 		{

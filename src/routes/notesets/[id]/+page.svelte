@@ -2,27 +2,23 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import type { RallyStageMap, RallyStageMapInput } from '$lib/types/rallyStageMap';
-	import type { Rally } from '$lib/types/rally';
+	import type { NoteSet, NoteSetInput } from '$lib/types/noteSet';
+	import type { Crew } from '$lib/types/crew';
 	import type { Stage } from '$lib/types/stage';
-	import { ApiException } from '$lib/types/rallyStageMap';
-	import {
-		getRallyStageMap,
-		updateRallyStageMap,
-		deleteRallyStageMap
-	} from '$lib/api/rallyStageMaps';
-	import { listRallies } from '$lib/api/rallies';
+	import { ApiException } from '$lib/types/noteSet';
+	import { getNoteSet, updateNoteSet, deleteNoteSet } from '$lib/api/noteSets';
+	import { listCrews } from '$lib/api/crews';
 	import { listStages } from '$lib/api/stages';
 	import Modal from '$lib/components/Modal.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import ErrorAlert from '$lib/components/ErrorAlert.svelte';
-	import RallyStageMapForm from '$lib/components/RallyStageMapForm.svelte';
+	import NoteSetForm from '$lib/components/NoteSetForm.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
-	let rallyStageMap: RallyStageMap | null = $state(null);
-	let rallies: Rally[] = $state([]);
+	let noteSet: NoteSet | null = $state(null);
+	let crews: Crew[] = $state([]);
 	let stages: Stage[] = $state([]);
 	let isLoading = $state(true);
 	let error: string | null = $state(null);
@@ -31,61 +27,61 @@
 	let submitError: string | null = $state(null);
 	let fieldErrors = $state({});
 
-	const rallyNamesById = $derived(
-		Object.fromEntries(rallies.map((rally) => [rally.rally_id, rally.name]))
+	const stageNamesById = $derived(
+		Object.fromEntries(stages.map((stage) => [stage.stage_id, stage.name]))
 	);
 
-	const rallyStageMapRallyName = $derived.by(() => {
-		const rallyId = rallyStageMap?.rally_id;
-		if (rallyId == null) {
+	const noteSetStageName = $derived.by(() => {
+		const stageId = noteSet?.stage_id;
+		if (stageId == null) {
 			return null;
 		}
 
-		return rallyNamesById[rallyId] ?? null;
+		return stageNamesById[stageId] ?? null;
 	});
 
 	onMount(async () => {
-		await fetchRallyStageMap(data.rallyStageMapId);
+		await fetchNoteSet(data.noteSetId);
 	});
 
-	async function fetchRallyStageMap(id: number) {
+	async function fetchNoteSet(id: number) {
 		isLoading = true;
 		error = null;
 
 		try {
-			const [rallyStageMapResult, ralliesResult, stagesResult] = await Promise.all([
-				getRallyStageMap(id),
-				listRallies(),
+			const [noteSetResult, crewsResult, stagesResult] = await Promise.all([
+				getNoteSet(id),
+				listCrews(),
 				listStages()
 			]);
-			rallyStageMap = rallyStageMapResult;
-			rallies = ralliesResult;
+			noteSet = noteSetResult;
+			crews = crewsResult;
 			stages = stagesResult;
 		} catch (err) {
 			if (err instanceof ApiException) {
 				if (err.statusCode === 404) {
-					error = 'RallyStageMap not found';
+					error = 'NoteSet not found';
 				} else {
 					error = err.message;
 				}
 			} else {
-				error = 'Failed to load rallyStageMap. Please try again.';
+				error = 'Failed to load noteSet. Please try again.';
 			}
 		} finally {
 			isLoading = false;
 		}
 	}
 
-	async function handleUpdateRallyStageMap(data: RallyStageMapInput) {
-		if (!rallyStageMap) return;
+	async function handleUpdateNoteSet(data: NoteSetInput) {
+		if (!noteSet) return;
 
 		isSubmitting = true;
 		submitError = null;
 		fieldErrors = {};
 
 		try {
-			await updateRallyStageMap(rallyStageMap.rally_stage_id, data);
-			rallyStageMap = { ...rallyStageMap, ...data };
+			await updateNoteSet(noteSet.note_id, data);
+			noteSet = { ...noteSet, ...data };
 			showEditModal = false;
 		} catch (err) {
 			if (err instanceof ApiException) {
@@ -94,25 +90,25 @@
 					fieldErrors = err.fieldErrors;
 				}
 			} else {
-				submitError = 'Failed to update rallyStageMap. Please try again.';
+				submitError = 'Failed to update noteSet. Please try again.';
 			}
 		} finally {
 			isSubmitting = false;
 		}
 	}
 
-	async function handleDeleteRallyStageMap() {
-		if (!rallyStageMap) return;
+	async function handleDeleteNoteSet() {
+		if (!noteSet) return;
 
-		if (!confirm('Are you sure you want to delete this rallyStageMap?')) {
+		if (!confirm('Are you sure you want to delete this noteSet?')) {
 			return;
 		}
 
 		try {
-			await deleteRallyStageMap(rallyStageMap.rally_stage_id);
-			await goto(resolve('/rallystagemaps'));
+			await deleteNoteSet(noteSet.note_id);
+			await goto(resolve('/notesets'));
 		} catch (err) {
-			error = err instanceof ApiException ? err.message : 'Failed to delete rallyStageMap';
+			error = err instanceof ApiException ? err.message : 'Failed to delete noteSet';
 		}
 	}
 </script>
@@ -128,43 +124,47 @@
 		<div style="display: flex; justify-content: center; padding: 2rem;">
 			<LoadingSpinner size="large" />
 		</div>
-	{:else if rallyStageMap}
+	{:else if noteSet}
 		<div class="page-header">
 			<div>
-				<a href={resolve('/rallystagemaps')} class="back-link">← Back to RallyStageMaps</a>
-				<h1 class="page-title">{rallyStageMap.rally_stage_id} {rallyStageMapRallyName}</h1>
+				<a href={resolve('/notesets')} class="back-link">← Back to NoteSets</a>
+				<h1 class="page-title">{noteSet.name}</h1>
 			</div>
 			<div style="display: flex; gap: 0.5rem;">
 				<button class="btn btn-primary" onclick={() => (showEditModal = true)}> Edit </button>
-				<button class="btn btn-danger" onclick={handleDeleteRallyStageMap}> Delete </button>
+				<button class="btn btn-danger" onclick={handleDeleteNoteSet}> Delete </button>
 			</div>
 		</div>
 
-		<div class="rallyStageMap-card">
-			<div class="rallyStageMap-field">
+		<div class="noteSet-card">
+			<div class="noteSet-field">
 				<span class="label">ID</span>
-				<p>{rallyStageMap.rally_stage_id}</p>
+				<p>{noteSet.note_id}</p>
 			</div>
-			<div class="rallyStageMap-field">
-				<span class="label">Rally</span>
-				<p>{rallyStageMapRallyName ?? rallyStageMap.rally_id}</p>
+			<div class="noteSet-field">
+				<span class="label">Crew</span>
+				<p>{noteSet.crew_id}</p>
 			</div>
-			<div class="rallyStageMap-field">
+			<div class="noteSet-field">
+				<span class="label">Name</span>
+				<p>{noteSet.name}</p>
+			</div>
+			<div class="noteSet-field">
 				<span class="label">Stage</span>
-				<p>{rallyStageMap.stage_id}</p>
+				<p>{noteSetStageName ?? noteSet.stage_id ?? '—'}</p>
 			</div>
-			<div class="rallyStageMap-field">
-				<span class="label">Stage Order</span>
-				<p>{rallyStageMap.stage_order}</p>
+			<div class="noteSet-field">
+				<span class="label">Conditions</span>
+				<p>{noteSet.conditions}</p>
 			</div>
 		</div>
 	{:else}
-		<p>RallyStageMap not found.</p>
+		<p>NoteSet not found.</p>
 	{/if}
 
 	<Modal
 		isOpen={showEditModal}
-		title="Edit RallyStageMap"
+		title="Edit NoteSet"
 		onClose={() => {
 			showEditModal = false;
 			submitError = null;
@@ -174,14 +174,14 @@
 		{#if submitError}
 			<ErrorAlert message={submitError} />
 		{/if}
-		{#if rallyStageMap}
-			<RallyStageMapForm
-				initialData={rallyStageMap}
-				rallyOptions={rallies}
+		{#if noteSet}
+			<NoteSetForm
+				initialData={noteSet}
+				crewOptions={crews}
 				stageOptions={stages}
 				isLoading={isSubmitting}
 				{fieldErrors}
-				onSubmit={handleUpdateRallyStageMap}
+				onSubmit={handleUpdateNoteSet}
 				onCancel={() => {
 					showEditModal = false;
 					submitError = null;
@@ -204,29 +204,29 @@
 		text-decoration: underline;
 	}
 
-	.rallyStageMap-card {
+	.noteSet-card {
 		background-color: var(--color-bg-secondary);
 		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		padding: 2rem;
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 		gap: 2rem;
 	}
 
-	.rallyStageMap-field {
+	.noteSet-field {
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
 	}
 
-	.rallyStageMap-field .label {
+	.noteSet-field .label {
 		font-weight: 600;
 		color: var(--color-text);
 		margin-bottom: 0;
 	}
 
-	.rallyStageMap-field p {
+	.noteSet-field p {
 		margin: 0;
 		color: var(--color-text);
 		font-size: 1.1rem;
@@ -248,7 +248,7 @@
 			flex-direction: column;
 		}
 
-		.rallyStageMap-card {
+		.noteSet-card {
 			grid-template-columns: 1fr;
 		}
 

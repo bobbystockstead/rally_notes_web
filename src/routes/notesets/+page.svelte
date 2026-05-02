@@ -2,69 +2,74 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import type { Model, ModelInput } from '$lib/types/model';
-	import type { Manufacturer } from '$lib/types/manufacturer';
-	import { ApiException } from '$lib/types/model';
-	import { listModels, createModel, updateModel, deleteModel } from '$lib/api/models';
-	import { listManufacturers } from '$lib/api/manufacturers';
+	import type { NoteSet, NoteSetInput } from '$lib/types/noteSet';
+	import type { Crew } from '$lib/types/crew';
+	import type { Stage } from '$lib/types/stage';
+	import { ApiException } from '$lib/types/noteSet';
+	import { listNoteSets, createNoteSet, updateNoteSet, deleteNoteSet } from '$lib/api/noteSets';
+	import { listCrews } from '$lib/api/crews';
+	import { listStages } from '$lib/api/stages';
 	import type { FieldErrors } from '$lib/types/api';
 	import Modal from '$lib/components/Modal.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import ErrorAlert from '$lib/components/ErrorAlert.svelte';
-	import ModelForm from '$lib/components/ModelForm.svelte';
+	import NoteSetForm from '$lib/components/NoteSetForm.svelte';
 
-	let models: Model[] = $state([]);
-	let manufacturers: Manufacturer[] = $state([]);
-	let manufacturerNamesById = $state<Record<number, string>>({});
+	let noteSets: NoteSet[] = $state([]);
+	let crews: Crew[] = $state([]);
+	let stages: Stage[] = $state([]);
+	let stageNamesById = $state<Record<number, string>>({});
 	let isLoading = $state(true);
 	let error: string | null = $state(null);
 	let showCreateModal = $state(false);
 	let showEditModal = $state(false);
-	let editingModel: Model | null = $state(null);
+	let editingNoteSet: NoteSet | null = $state(null);
 	let isSubmitting = $state(false);
 	let submitError: string | null = $state(null);
 	let fieldErrors = $state<FieldErrors>({});
 
 	onMount(async () => {
-		await fetchModels();
+		await fetchNoteSets();
 	});
 
-	async function fetchModels() {
+	async function fetchNoteSets() {
 		isLoading = true;
 		error = null;
 
 		try {
-			const [modelsResult, manufacturersResult] = await Promise.all([
-				listModels(),
-				listManufacturers()
+			const [noteSetsResult, crewsResult, stagesResult] = await Promise.all([
+				listNoteSets(),
+				listCrews(),
+				listStages()
 			]);
-			models = modelsResult;
-			manufacturers = manufacturersResult;
-			manufacturerNamesById = Object.fromEntries(
-				manufacturersResult.map((manufacturer) => [manufacturer.manufacturer_id, manufacturer.name])
+			noteSets = noteSetsResult;
+			crews = crewsResult;
+			stages = stagesResult;
+			stageNamesById = Object.fromEntries(
+				stagesResult.map((stage) => [stage.stage_id, stage.name])
 			);
 		} catch (err) {
 			if (err instanceof ApiException) {
 				error = err.message;
 			} else {
-				error = 'Failed to load models. Please try again.';
+				error = 'Failed to load noteSets. Please try again.';
 			}
 		} finally {
 			isLoading = false;
 		}
 	}
 
-	async function handleCreateModel(data: ModelInput) {
+	async function handleCreateNoteSet(data: NoteSetInput) {
 		isSubmitting = true;
 		submitError = null;
 		fieldErrors = {};
 
 		try {
-			const newModel = await createModel(data);
-			models = [...models, newModel];
+			const newNoteSet = await createNoteSet(data);
+			noteSets = [...noteSets, newNoteSet];
 			showCreateModal = false;
-			// Navigate to the newly created model's detail page
-			await goto(resolve('/models/[id]', { id: String(newModel.model_id) }));
+			// Navigate to the newly created Note Set's detail page
+			await goto(resolve('/notesets/[id]', { id: String(newNoteSet.note_id) }));
 		} catch (err) {
 			if (err instanceof ApiException) {
 				submitError = err.message;
@@ -72,15 +77,15 @@
 					fieldErrors = err.fieldErrors;
 				}
 			} else {
-				submitError = 'Failed to create model. Please try again.';
+				submitError = 'Failed to create noteSet. Please try again.';
 			}
 		} finally {
 			isSubmitting = false;
 		}
 	}
 
-	function openEditModal(model: Model) {
-		editingModel = model;
+	function openEditModal(noteSet: NoteSet) {
+		editingNoteSet = noteSet;
 		showEditModal = true;
 		submitError = null;
 		fieldErrors = {};
@@ -88,13 +93,13 @@
 
 	function closeEditModal() {
 		showEditModal = false;
-		editingModel = null;
+		editingNoteSet = null;
 		submitError = null;
 		fieldErrors = {};
 	}
 
-	async function handleUpdateModel(data: ModelInput) {
-		if (!editingModel) {
+	async function handleUpdateNoteSet(data: NoteSetInput) {
+		if (!editingNoteSet) {
 			return;
 		}
 
@@ -103,10 +108,10 @@
 		fieldErrors = {};
 
 		try {
-			const editingModelId = editingModel.model_id;
-			await updateModel(editingModelId, data);
-			models = models.map((model) =>
-				model.model_id === editingModelId ? { ...model, ...data } : model
+			const editingNoteSetId = editingNoteSet.note_id;
+			await updateNoteSet(editingNoteSetId, data);
+			noteSets = noteSets.map((noteSet) =>
+				noteSet.note_id === editingNoteSetId ? { ...noteSet, ...data } : noteSet
 			);
 			closeEditModal();
 		} catch (err) {
@@ -116,31 +121,33 @@
 					fieldErrors = err.fieldErrors;
 				}
 			} else {
-				submitError = 'Failed to update model. Please try again.';
+				submitError = 'Failed to update noteSet. Please try again.';
 			}
 		} finally {
 			isSubmitting = false;
 		}
 	}
 
-	async function handleDeleteModel(id: number) {
-		if (!confirm('Are you sure you want to delete this model?')) {
+	async function handleDeleteNoteSet(id: number) {
+		if (!confirm('Are you sure you want to delete this noteSet?')) {
 			return;
 		}
 
 		try {
-			await deleteModel(id);
-			models = models.filter((d) => d.model_id !== id);
+			await deleteNoteSet(id);
+			noteSets = noteSets.filter((d) => d.note_id !== id);
 		} catch (err) {
-			error = err instanceof ApiException ? err.message : 'Failed to delete model';
+			error = err instanceof ApiException ? err.message : 'Failed to delete noteSet';
 		}
 	}
 </script>
 
 <div class="container">
 	<div class="page-header">
-		<h1 class="page-title">Models</h1>
-		<button class="btn btn-primary" onclick={() => (showCreateModal = true)}> + New Model </button>
+		<h1 class="page-title">NoteSets</h1>
+		<button class="btn btn-primary" onclick={() => (showCreateModal = true)}>
+			+ New NoteSet
+		</button>
 	</div>
 
 	{#if error}
@@ -151,13 +158,13 @@
 		<div style="display: flex; justify-content: center; padding: 2rem;">
 			<LoadingSpinner size="large" />
 		</div>
-	{:else if models.length === 0}
+	{:else if noteSets.length === 0}
 		<div class="empty-state">
 			<div class="empty-state-icon">🏁</div>
-			<h3>No models yet</h3>
-			<p>Create your first model to get started managing rally racing teams.</p>
+			<h3>No noteSets yet</h3>
+			<p>Create your first Note Set to get started.</p>
 			<button class="btn btn-primary" onclick={() => (showCreateModal = true)}>
-				Create First Model
+				Create First NoteSet
 			</button>
 		</div>
 	{:else}
@@ -166,33 +173,37 @@
 				<thead>
 					<tr>
 						<th>ID</th>
+						<th>Crew ID</th>
 						<th>Name</th>
-						<th>Manufacturer</th>
+						<th>Stage</th>
+						<th>Conditions</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
 				<tbody>
-					{#each models as model (model.model_id)}
+					{#each noteSets as noteSet (noteSet.note_id)}
 						<tr>
-							<td>{model.model_id}</td>
-							<td>{model.name}</td>
-							<td
-								>{manufacturerNamesById[model.manufacturer_id] ?? `ID ${model.manufacturer_id}`}</td
-							>
+							<td>{noteSet.note_id}</td>
+							<td>{noteSet.crew_id}</td>
+							<td>{noteSet.name}</td>
+							<td>
+								{stageNamesById[noteSet.stage_id] ?? `ID ${noteSet.stage_id}`}
+							</td>
+							<td>{noteSet.conditions ?? '—'}</td>
 							<td>
 								<div class="action-buttons">
 									<a
-										href={resolve('/models/[id]', { id: String(model.model_id) })}
+										href={resolve('/notesets/[id]', { id: String(noteSet.note_id) })}
 										class="btn btn-sm btn-primary"
 									>
 										View
 									</a>
-									<button class="btn btn-sm btn-secondary" onclick={() => openEditModal(model)}>
+									<button class="btn btn-sm btn-secondary" onclick={() => openEditModal(noteSet)}>
 										Edit
 									</button>
 									<button
 										class="btn btn-sm btn-danger"
-										onclick={() => handleDeleteModel(model.model_id)}
+										onclick={() => handleDeleteNoteSet(noteSet.note_id)}
 									>
 										Delete
 									</button>
@@ -207,7 +218,7 @@
 
 	<Modal
 		isOpen={showCreateModal}
-		title="Create New Model"
+		title="Create New NoteSet"
 		onClose={() => {
 			showCreateModal = false;
 			submitError = null;
@@ -217,11 +228,12 @@
 		{#if submitError}
 			<ErrorAlert message={submitError} />
 		{/if}
-		<ModelForm
-			manufacturerOptions={manufacturers}
+		<NoteSetForm
+			crewOptions={crews}
+			stageOptions={stages}
 			isLoading={isSubmitting}
 			{fieldErrors}
-			onSubmit={handleCreateModel}
+			onSubmit={handleCreateNoteSet}
 			onCancel={() => {
 				showCreateModal = false;
 				submitError = null;
@@ -230,17 +242,18 @@
 		/>
 	</Modal>
 
-	<Modal isOpen={showEditModal} title="Edit Model" onClose={closeEditModal}>
+	<Modal isOpen={showEditModal} title="Edit NoteSet" onClose={closeEditModal}>
 		{#if submitError}
 			<ErrorAlert message={submitError} />
 		{/if}
-		{#if editingModel}
-			<ModelForm
-				initialData={editingModel}
-				manufacturerOptions={manufacturers}
+		{#if editingNoteSet}
+			<NoteSetForm
+				initialData={editingNoteSet}
+				crewOptions={crews}
+				stageOptions={stages}
 				isLoading={isSubmitting}
 				{fieldErrors}
-				onSubmit={handleUpdateModel}
+				onSubmit={handleUpdateNoteSet}
 				onCancel={closeEditModal}
 			/>
 		{/if}

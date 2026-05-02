@@ -47,20 +47,23 @@
 	});
 
 	const isEditMode = $derived(!!initialData);
-	const isFormInvalid = $derived(formData.rally_id === null || formData.stage_id === null);
+	const isFormInvalid = $derived(
+		formData.rally_id === null || formData.stage_id === null || formData.stage_order === null
+	);
 
 	function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		const rallyId = formData.rally_id;
 		const stageId = formData.stage_id;
-		if (rallyId === null || stageId === null) {
+		const stageOrder = formData.stage_order;
+		if (rallyId === null || stageId === null || stageOrder === null) {
 			return;
 		}
 
 		onSubmit({
 			rally_id: rallyId,
 			stage_id: stageId,
-			stage_order: formData.stage_order
+			stage_order: stageOrder
 		});
 	}
 </script>
