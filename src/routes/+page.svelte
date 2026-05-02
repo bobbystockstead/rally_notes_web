@@ -14,6 +14,7 @@
 			| '/manufacturers'
 			| '/models'
 			| '/rallies'
+			| '/rallyentries'
 			| '/stages'
 			| '/teams'
 			| '/tips'
@@ -69,6 +70,12 @@
 			label: 'Rallies',
 			path: '/rallies',
 			description: 'Manage rally records',
+			enabled: true
+		},
+		{
+			label: 'RallyEntries',
+			path: '/rallyentries',
+			description: 'Manage rallyEntry records',
 			enabled: true
 		},
 		{
