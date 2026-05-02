@@ -6,39 +6,39 @@
 import type { RallyEntry, RallyEntryInput } from '../types/rallyEntry';
 import { createCrudApi } from './client';
 
-const rallyentriesApi = createCrudApi<RallyEntry, RallyEntryInput>('/rallyEntries');
+const rallyEntriesApi = createCrudApi<RallyEntry, RallyEntryInput>('/rallyEntries');
 
 /**
- * Fetch all rallyentries
+ * Fetch all rallyEntries
  */
 export async function listRallyEntries(): Promise<RallyEntry[]> {
-	return rallyentriesApi.list();
+	return rallyEntriesApi.list();
 }
 
 /**
  * Fetch a single rallyentry by ID
  */
 export async function getRallyEntry(id: number): Promise<RallyEntry> {
-	return rallyentriesApi.get(id);
+	return rallyEntriesApi.get(id);
 }
 
 /**
  * Create a new rallyentry
  */
 export async function createRallyEntry(input: RallyEntryInput): Promise<RallyEntry> {
-	return rallyentriesApi.create(input);
+	return rallyEntriesApi.create(input);
 }
 
 /**
  * Update an existing rallyentry
  */
 export async function updateRallyEntry(id: number, input: RallyEntryInput): Promise<void> {
-	return rallyentriesApi.update(id, input);
+	return rallyEntriesApi.update(id, input);
 }
 
 /**
  * Delete a rallyentry by ID
  */
 export async function deleteRallyEntry(id: number): Promise<void> {
-	return rallyentriesApi.remove(id);
+	return rallyEntriesApi.remove(id);
 }

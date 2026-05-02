@@ -2,79 +2,83 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import type { RallyEntry, RallyEntryInput } from '$lib/types/rallyEntry';
+	import type { RallyStageMap, RallyStageMapInput } from '$lib/types/rallyStageMap';
 	import type { Rally } from '$lib/types/rally';
-	import type { Crew } from '$lib/types/crew';
-	import { ApiException } from '$lib/types/rallyEntry';
+	import type { Stage } from '$lib/types/stage';
+	import { ApiException } from '$lib/types/rallyStageMap';
 	import {
-		listRallyEntries,
-		createRallyEntry,
-		updateRallyEntry,
-		deleteRallyEntry
-	} from '$lib/api/rallyEntries';
+		listRallyStageMaps,
+		createRallyStageMap,
+		updateRallyStageMap,
+		deleteRallyStageMap
+	} from '$lib/api/rallyStageMaps';
 	import { listRallies } from '$lib/api/rallies';
-	import { listCrews } from '$lib/api/crews';
+	import { listStages } from '$lib/api/stages';
 	import type { FieldErrors } from '$lib/types/api';
 	import Modal from '$lib/components/Modal.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import ErrorAlert from '$lib/components/ErrorAlert.svelte';
-	import RallyEntryForm from '$lib/components/RallyEntryForm.svelte';
+	import RallyStageMapForm from '$lib/components/RallyStageMapForm.svelte';
 
-	let rallyEntries: RallyEntry[] = $state([]);
+	let rallyStageMaps: RallyStageMap[] = $state([]);
 	let rallys: Rally[] = $state([]);
-	let crews: Crew[] = $state([]);
+	let stages: Stage[] = $state([]);
 	let rallyNamesById = $state<Record<number, string>>({});
+	let stageNamesById = $state<Record<number, string>>({});
 	let isLoading = $state(true);
 	let error: string | null = $state(null);
 	let showCreateModal = $state(false);
 	let showEditModal = $state(false);
-	let editingRallyEntry: RallyEntry | null = $state(null);
+	let editingRallyStageMap: RallyStageMap | null = $state(null);
 	let isSubmitting = $state(false);
 	let submitError: string | null = $state(null);
 	let fieldErrors = $state<FieldErrors>({});
 
 	onMount(async () => {
-		await fetchRallyEntries();
+		await fetchRallyStageMaps();
 	});
 
-	async function fetchRallyEntries() {
+	async function fetchRallyStageMaps() {
 		isLoading = true;
 		error = null;
 
 		try {
-			const [rallyEntriesResult, rallysResult, crewsResult] = await Promise.all([
-				listRallyEntries(),
+			const [rallyStageMapsResult, rallysResult, stagesResult] = await Promise.all([
+				listRallyStageMaps(),
 				listRallies(),
-				listCrews()
+				listStages()
 			]);
-			rallyEntries = rallyEntriesResult;
+			rallyStageMaps = rallyStageMapsResult;
 			rallys = rallysResult;
-			crews = crewsResult;
+			stages = stagesResult;
 			rallyNamesById = Object.fromEntries(
 				rallysResult.map((rally) => [rally.rally_id, rally.name])
+			);
+			stageNamesById = Object.fromEntries(
+				stagesResult.map((stage) => [stage.stage_id, stage.name])
 			);
 		} catch (err) {
 			if (err instanceof ApiException) {
 				error = err.message;
 			} else {
-				error = 'Failed to load rallyEntries. Please try again.';
+				error = 'Failed to load rallyStageMaps. Please try again.';
 			}
 		} finally {
 			isLoading = false;
 		}
 	}
 
-	async function handleCreateRallyEntry(data: RallyEntryInput) {
+	async function handleCreateRallyStageMap(data: RallyStageMapInput) {
 		isSubmitting = true;
 		submitError = null;
 		fieldErrors = {};
 
 		try {
-			const newRallyEntry = await createRallyEntry(data);
-			rallyEntries = [...rallyEntries, newRallyEntry];
+			const newRallyStageMap = await createRallyStageMap(data);
+			rallyStageMaps = [...rallyStageMaps, newRallyStageMap];
 			showCreateModal = false;
 			// Navigate to the newly created rallyentry's detail page
-			await goto(resolve('/rallyentries/[id]', { id: String(newRallyEntry.entry_id) }));
+			await goto(resolve('/rallystagemaps/[id]', { id: String(newRallyStageMap.rally_stage_id) }));
 		} catch (err) {
 			if (err instanceof ApiException) {
 				submitError = err.message;
@@ -82,15 +86,15 @@
 					fieldErrors = err.fieldErrors;
 				}
 			} else {
-				submitError = 'Failed to create rallyEntry. Please try again.';
+				submitError = 'Failed to create rallyStageMap. Please try again.';
 			}
 		} finally {
 			isSubmitting = false;
 		}
 	}
 
-	function openEditModal(rallyEntry: RallyEntry) {
-		editingRallyEntry = rallyEntry;
+	function openEditModal(rallyStageMap: RallyStageMap) {
+		editingRallyStageMap = rallyStageMap;
 		showEditModal = true;
 		submitError = null;
 		fieldErrors = {};
@@ -98,13 +102,13 @@
 
 	function closeEditModal() {
 		showEditModal = false;
-		editingRallyEntry = null;
+		editingRallyStageMap = null;
 		submitError = null;
 		fieldErrors = {};
 	}
 
-	async function handleUpdateRallyEntry(data: RallyEntryInput) {
-		if (!editingRallyEntry) {
+	async function handleUpdateRallyStageMap(data: RallyStageMapInput) {
+		if (!editingRallyStageMap) {
 			return;
 		}
 
@@ -113,10 +117,12 @@
 		fieldErrors = {};
 
 		try {
-			const editingRallyEntryId = editingRallyEntry.entry_id;
-			await updateRallyEntry(editingRallyEntryId, data);
-			rallyEntries = rallyEntries.map((rallyEntry) =>
-				rallyEntry.entry_id === editingRallyEntryId ? { ...rallyEntry, ...data } : rallyEntry
+			const editingRallyStageMapId = editingRallyStageMap.rally_stage_id;
+			await updateRallyStageMap(editingRallyStageMapId, data);
+			rallyStageMaps = rallyStageMaps.map((rallyStageMap) =>
+				rallyStageMap.rally_stage_id === editingRallyStageMapId
+					? { ...rallyStageMap, ...data }
+					: rallyStageMap
 			);
 			closeEditModal();
 		} catch (err) {
@@ -126,32 +132,32 @@
 					fieldErrors = err.fieldErrors;
 				}
 			} else {
-				submitError = 'Failed to update rallyEntry. Please try again.';
+				submitError = 'Failed to update rallyStageMap. Please try again.';
 			}
 		} finally {
 			isSubmitting = false;
 		}
 	}
 
-	async function handleDeleteRallyEntry(id: number) {
-		if (!confirm('Are you sure you want to delete this rallyEntry?')) {
+	async function handleDeleteRallyStageMap(id: number) {
+		if (!confirm('Are you sure you want to delete this rallyStageMap?')) {
 			return;
 		}
 
 		try {
-			await deleteRallyEntry(id);
-			rallyEntries = rallyEntries.filter((d) => d.entry_id !== id);
+			await deleteRallyStageMap(id);
+			rallyStageMaps = rallyStageMaps.filter((d) => d.rally_stage_id !== id);
 		} catch (err) {
-			error = err instanceof ApiException ? err.message : 'Failed to delete rallyEntry';
+			error = err instanceof ApiException ? err.message : 'Failed to delete rallyStageMap';
 		}
 	}
 </script>
 
 <div class="container">
 	<div class="page-header">
-		<h1 class="page-title">RallyEntries</h1>
+		<h1 class="page-title">RallyStageMaps</h1>
 		<button class="btn btn-primary" onclick={() => (showCreateModal = true)}>
-			+ New RallyEntry
+			+ New RallyStageMap
 		</button>
 	</div>
 
@@ -163,13 +169,13 @@
 		<div style="display: flex; justify-content: center; padding: 2rem;">
 			<LoadingSpinner size="large" />
 		</div>
-	{:else if rallyEntries.length === 0}
+	{:else if rallyStageMaps.length === 0}
 		<div class="empty-state">
 			<div class="empty-state-icon">🏁</div>
-			<h3>No rallyEntries yet</h3>
-			<p>Create your first rallyEntry to get started managing rally racing teams.</p>
+			<h3>No rallyStageMaps yet</h3>
+			<p>Create your first rallyStageMap to get started managing rally racing teams.</p>
 			<button class="btn btn-primary" onclick={() => (showCreateModal = true)}>
-				Create First RallyEntry
+				Create First RallyStageMap
 			</button>
 		</div>
 	{:else}
@@ -179,35 +185,37 @@
 					<tr>
 						<th>ID</th>
 						<th>Rally</th>
-						<th>Crew</th>
-						<th>Car Number</th>
+						<th>Stage</th>
+						<th>Stage Order</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
 				<tbody>
-					{#each rallyEntries as rallyEntry (rallyEntry.entry_id)}
+					{#each rallyStageMaps as rallyStageMap (rallyStageMap.rally_stage_id)}
 						<tr>
-							<td>{rallyEntry.entry_id}</td>
-							<td>{rallyNamesById[rallyEntry.rally_id] ?? `ID ${rallyEntry.rally_id}`}</td>
-							<td>{rallyEntry.crew_id}</td>
-							<td>{rallyEntry.car_number ?? '—'}</td>
+							<td>{rallyStageMap.rally_stage_id}</td>
+							<td>{rallyNamesById[rallyStageMap.rally_id] ?? `ID ${rallyStageMap.rally_id}`}</td>
+							<td>{stageNamesById[rallyStageMap.stage_id] ?? `ID ${rallyStageMap.stage_id}`}</td>
+							<td>{rallyStageMap.stage_order ?? '—'}</td>
 							<td>
 								<div class="action-buttons">
 									<a
-										href={resolve('/rallyentries/[id]', { id: String(rallyEntry.entry_id) })}
+										href={resolve('/rallystagemaps/[id]', {
+											id: String(rallyStageMap.rally_stage_id)
+										})}
 										class="btn btn-sm btn-primary"
 									>
 										View
 									</a>
 									<button
 										class="btn btn-sm btn-secondary"
-										onclick={() => openEditModal(rallyEntry)}
+										onclick={() => openEditModal(rallyStageMap)}
 									>
 										Edit
 									</button>
 									<button
 										class="btn btn-sm btn-danger"
-										onclick={() => handleDeleteRallyEntry(rallyEntry.entry_id)}
+										onclick={() => handleDeleteRallyStageMap(rallyStageMap.rally_stage_id)}
 									>
 										Delete
 									</button>
@@ -222,7 +230,7 @@
 
 	<Modal
 		isOpen={showCreateModal}
-		title="Create New RallyEntry"
+		title="Create New RallyStageMap"
 		onClose={() => {
 			showCreateModal = false;
 			submitError = null;
@@ -232,12 +240,12 @@
 		{#if submitError}
 			<ErrorAlert message={submitError} />
 		{/if}
-		<RallyEntryForm
+		<RallyStageMapForm
 			rallyOptions={rallys}
-			crewOptions={crews}
+			stageOptions={stages}
 			isLoading={isSubmitting}
 			{fieldErrors}
-			onSubmit={handleCreateRallyEntry}
+			onSubmit={handleCreateRallyStageMap}
 			onCancel={() => {
 				showCreateModal = false;
 				submitError = null;
@@ -246,18 +254,18 @@
 		/>
 	</Modal>
 
-	<Modal isOpen={showEditModal} title="Edit RallyEntry" onClose={closeEditModal}>
+	<Modal isOpen={showEditModal} title="Edit RallyStageMap" onClose={closeEditModal}>
 		{#if submitError}
 			<ErrorAlert message={submitError} />
 		{/if}
-		{#if editingRallyEntry}
-			<RallyEntryForm
-				initialData={editingRallyEntry}
+		{#if editingRallyStageMap}
+			<RallyStageMapForm
+				initialData={editingRallyStageMap}
 				rallyOptions={rallys}
-				crewOptions={crews}
+				stageOptions={stages}
 				isLoading={isSubmitting}
 				{fieldErrors}
-				onSubmit={handleUpdateRallyEntry}
+				onSubmit={handleUpdateRallyStageMap}
 				onCancel={closeEditModal}
 			/>
 		{/if}
