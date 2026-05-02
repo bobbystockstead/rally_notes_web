@@ -179,11 +179,11 @@
 			</div>
 			<div class="crew-field">
 				<span class="label">Crew Driver</span>
-				<p>{crewDriverName ?? crew.driver_id ?? '—'}</p>
+				<p>{crewDriverName ?? crew.driver_id}</p>
 			</div>
 			<div class="crew-field">
 				<span class="label">Crew Codriver</span>
-				<p>{crewCodriverName ?? crew.codriver_id ?? '—'}</p>
+				<p>{crewCodriverName ?? crew.codriver_id}</p>
 			</div>
 			<div class="crew-field">
 				<span class="label">Crew Car</span>

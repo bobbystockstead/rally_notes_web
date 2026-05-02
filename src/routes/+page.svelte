@@ -6,6 +6,7 @@
 	type ResourceLink = {
 		label: string;
 		path?:
+			| '/calls'
 			| '/cars'
 			| '/codrivers'
 			| '/crews'
@@ -26,6 +27,12 @@
 	};
 
 	const resources: ResourceLink[] = [
+		{
+			label: 'Calls',
+			path: '/calls',
+			description: 'Manage call records',
+			enabled: true
+		},
 		{
 			label: 'Cars',
 			path: '/cars',

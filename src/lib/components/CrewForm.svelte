@@ -121,6 +121,7 @@
 			<span class="field-error">{fieldErrors.codriver_id}</span>
 		{/if}
 	</div>
+
 	<div class="form-group">
 		<label for="car_id">Car</label>
 		<select
@@ -142,6 +143,7 @@
 			<span class="field-error">{fieldErrors.car_id}</span>
 		{/if}
 	</div>
+
 	<div class="form-group">
 		<label for="team_id">Team</label>
 		<select
