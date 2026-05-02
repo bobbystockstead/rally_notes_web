@@ -74,13 +74,13 @@
 			enabled: true
 		},
 		{
-			label: 'RallyEntries',
+			label: 'Rally Entries',
 			path: '/rallyentries',
 			description: 'Manage rallyEntry records',
 			enabled: true
 		},
 		{
-			label: 'RallyStageMaps',
+			label: 'Rally Stage Maps',
 			path: '/rallystagemaps',
 			description: 'Manage rallyStageMap records',
 			enabled: true

@@ -21,7 +21,7 @@
 	import RallyEntryForm from '$lib/components/RallyEntryForm.svelte';
 
 	let rallyEntries: RallyEntry[] = $state([]);
-	let rallys: Rally[] = $state([]);
+	let rallies: Rally[] = $state([]);
 	let crews: Crew[] = $state([]);
 	let rallyNamesById = $state<Record<number, string>>({});
 	let isLoading = $state(true);
@@ -42,16 +42,16 @@
 		error = null;
 
 		try {
-			const [rallyEntriesResult, rallysResult, crewsResult] = await Promise.all([
+			const [rallyEntriesResult, ralliesResult, crewsResult] = await Promise.all([
 				listRallyEntries(),
 				listRallies(),
 				listCrews()
 			]);
 			rallyEntries = rallyEntriesResult;
-			rallys = rallysResult;
+			rallies = ralliesResult;
 			crews = crewsResult;
 			rallyNamesById = Object.fromEntries(
-				rallysResult.map((rally) => [rally.rally_id, rally.name])
+				ralliesResult.map((rally) => [rally.rally_id, rally.name])
 			);
 		} catch (err) {
 			if (err instanceof ApiException) {
@@ -73,7 +73,7 @@
 			const newRallyEntry = await createRallyEntry(data);
 			rallyEntries = [...rallyEntries, newRallyEntry];
 			showCreateModal = false;
-			// Navigate to the newly created rallyentry's detail page
+			// Navigate to the newly created rallyEntry's detail page
 			await goto(resolve('/rallyentries/[id]', { id: String(newRallyEntry.entry_id) }));
 		} catch (err) {
 			if (err instanceof ApiException) {
@@ -233,7 +233,7 @@
 			<ErrorAlert message={submitError} />
 		{/if}
 		<RallyEntryForm
-			rallyOptions={rallys}
+			rallyOptions={rallies}
 			crewOptions={crews}
 			isLoading={isSubmitting}
 			{fieldErrors}
@@ -253,7 +253,7 @@
 		{#if editingRallyEntry}
 			<RallyEntryForm
 				initialData={editingRallyEntry}
-				rallyOptions={rallys}
+				rallyOptions={rallies}
 				crewOptions={crews}
 				isLoading={isSubmitting}
 				{fieldErrors}

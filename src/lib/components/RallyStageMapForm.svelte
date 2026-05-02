@@ -118,10 +118,10 @@
 			bind:value={formData.stage_order}
 			placeholder="Stage order"
 			disabled={isLoading}
-			class:input-error={fieldErrors.number}
+			class:input-error={fieldErrors.stage_order}
 		/>
-		{#if fieldErrors.number}
-			<span class="field-error">{fieldErrors.number}</span>
+		{#if fieldErrors.stage_order}
+			<span class="field-error">{fieldErrors.stage_order}</span>
 		{/if}
 	</div>
 

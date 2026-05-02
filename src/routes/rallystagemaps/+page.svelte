@@ -21,7 +21,7 @@
 	import RallyStageMapForm from '$lib/components/RallyStageMapForm.svelte';
 
 	let rallyStageMaps: RallyStageMap[] = $state([]);
-	let rallys: Rally[] = $state([]);
+	let rallies: Rally[] = $state([]);
 	let stages: Stage[] = $state([]);
 	let rallyNamesById = $state<Record<number, string>>({});
 	let stageNamesById = $state<Record<number, string>>({});
@@ -43,16 +43,16 @@
 		error = null;
 
 		try {
-			const [rallyStageMapsResult, rallysResult, stagesResult] = await Promise.all([
+			const [rallyStageMapsResult, ralliesResult, stagesResult] = await Promise.all([
 				listRallyStageMaps(),
 				listRallies(),
 				listStages()
 			]);
 			rallyStageMaps = rallyStageMapsResult;
-			rallys = rallysResult;
+			rallies = ralliesResult;
 			stages = stagesResult;
 			rallyNamesById = Object.fromEntries(
-				rallysResult.map((rally) => [rally.rally_id, rally.name])
+				ralliesResult.map((rally) => [rally.rally_id, rally.name])
 			);
 			stageNamesById = Object.fromEntries(
 				stagesResult.map((stage) => [stage.stage_id, stage.name])
@@ -77,7 +77,7 @@
 			const newRallyStageMap = await createRallyStageMap(data);
 			rallyStageMaps = [...rallyStageMaps, newRallyStageMap];
 			showCreateModal = false;
-			// Navigate to the newly created rallyentry's detail page
+			// Navigate to the newly created rallyStageMap's detail page
 			await goto(resolve('/rallystagemaps/[id]', { id: String(newRallyStageMap.rally_stage_id) }));
 		} catch (err) {
 			if (err instanceof ApiException) {
@@ -241,7 +241,7 @@
 			<ErrorAlert message={submitError} />
 		{/if}
 		<RallyStageMapForm
-			rallyOptions={rallys}
+			rallyOptions={rallies}
 			stageOptions={stages}
 			isLoading={isSubmitting}
 			{fieldErrors}
@@ -261,7 +261,7 @@
 		{#if editingRallyStageMap}
 			<RallyStageMapForm
 				initialData={editingRallyStageMap}
-				rallyOptions={rallys}
+				rallyOptions={rallies}
 				stageOptions={stages}
 				isLoading={isSubmitting}
 				{fieldErrors}

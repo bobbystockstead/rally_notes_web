@@ -9,35 +9,35 @@ import { createCrudApi } from './client';
 const rallyEntriesApi = createCrudApi<RallyEntry, RallyEntryInput>('/rallyEntries');
 
 /**
- * Fetch all rallyEntries
+ * Fetch all RallyEntry records
  */
 export async function listRallyEntries(): Promise<RallyEntry[]> {
 	return rallyEntriesApi.list();
 }
 
 /**
- * Fetch a single rallyentry by ID
+ * Fetch a single RallyEntry by ID
  */
 export async function getRallyEntry(id: number): Promise<RallyEntry> {
 	return rallyEntriesApi.get(id);
 }
 
 /**
- * Create a new rallyentry
+ * Create a new RallyEntry
  */
 export async function createRallyEntry(input: RallyEntryInput): Promise<RallyEntry> {
 	return rallyEntriesApi.create(input);
 }
 
 /**
- * Update an existing rallyentry
+ * Update an existing RallyEntry
  */
 export async function updateRallyEntry(id: number, input: RallyEntryInput): Promise<void> {
 	return rallyEntriesApi.update(id, input);
 }
 
 /**
- * Delete a rallyentry by ID
+ * Delete a RallyEntry by ID
  */
 export async function deleteRallyEntry(id: number): Promise<void> {
 	return rallyEntriesApi.remove(id);

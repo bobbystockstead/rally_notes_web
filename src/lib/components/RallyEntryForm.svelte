@@ -118,10 +118,10 @@
 			bind:value={formData.car_number}
 			placeholder="Car number"
 			disabled={isLoading}
-			class:input-error={fieldErrors.number}
+			class:input-error={fieldErrors.car_number}
 		/>
-		{#if fieldErrors.number}
-			<span class="field-error">{fieldErrors.number}</span>
+		{#if fieldErrors.car_number}
+			<span class="field-error">{fieldErrors.car_number}</span>
 		{/if}
 	</div>
 
