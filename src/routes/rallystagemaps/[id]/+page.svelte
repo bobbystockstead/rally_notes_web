@@ -2,21 +2,28 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import type { Model, ModelInput } from '$lib/types/model';
-	import type { Manufacturer } from '$lib/types/manufacturer';
-	import { ApiException } from '$lib/types/model';
-	import { getModel, updateModel, deleteModel } from '$lib/api/models';
-	import { listManufacturers } from '$lib/api/manufacturers';
+	import type { RallyStageMap, RallyStageMapInput } from '$lib/types/rallyStageMap';
+	import type { Rally } from '$lib/types/rally';
+	import type { Stage } from '$lib/types/stage';
+	import { ApiException } from '$lib/types/rallyStageMap';
+	import {
+		getRallyStageMap,
+		updateRallyStageMap,
+		deleteRallyStageMap
+	} from '$lib/api/rallyStageMaps';
+	import { listRallies } from '$lib/api/rallies';
+	import { listStages } from '$lib/api/stages';
 	import Modal from '$lib/components/Modal.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import ErrorAlert from '$lib/components/ErrorAlert.svelte';
-	import ModelForm from '$lib/components/ModelForm.svelte';
+	import RallyStageMapForm from '$lib/components/RallyStageMapForm.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
-	let model: Model | null = $state(null);
-	let manufacturers: Manufacturer[] = $state([]);
+	let rallyStageMap: RallyStageMap | null = $state(null);
+	let rallies: Rally[] = $state([]);
+	let stages: Stage[] = $state([]);
 	let isLoading = $state(true);
 	let error: string | null = $state(null);
 	let showEditModal = $state(false);
@@ -24,61 +31,61 @@
 	let submitError: string | null = $state(null);
 	let fieldErrors = $state({});
 
-	const manufacturerNamesById = $derived(
-		Object.fromEntries(
-			manufacturers.map((manufacturer) => [manufacturer.manufacturer_id, manufacturer.name])
-		)
+	const rallyNamesById = $derived(
+		Object.fromEntries(rallies.map((rally) => [rally.rally_id, rally.name]))
 	);
 
-	const modelManufacturerName = $derived.by(() => {
-		const manufacturerId = model?.manufacturer_id;
-		if (manufacturerId == null) {
+	const rallyStageMapRallyName = $derived.by(() => {
+		const rallyId = rallyStageMap?.rally_id;
+		if (rallyId == null) {
 			return null;
 		}
 
-		return manufacturerNamesById[manufacturerId] ?? null;
+		return rallyNamesById[rallyId] ?? null;
 	});
 
 	onMount(async () => {
-		await fetchModel(data.modelId);
+		await fetchRallyStageMap(data.rallyStageMapId);
 	});
 
-	async function fetchModel(id: number) {
+	async function fetchRallyStageMap(id: number) {
 		isLoading = true;
 		error = null;
 
 		try {
-			const [modelResult, manufacturersResult] = await Promise.all([
-				getModel(id),
-				listManufacturers()
+			const [rallyStageMapResult, ralliesResult, stagesResult] = await Promise.all([
+				getRallyStageMap(id),
+				listRallies(),
+				listStages()
 			]);
-			model = modelResult;
-			manufacturers = manufacturersResult;
+			rallyStageMap = rallyStageMapResult;
+			rallies = ralliesResult;
+			stages = stagesResult;
 		} catch (err) {
 			if (err instanceof ApiException) {
 				if (err.statusCode === 404) {
-					error = 'Model not found';
+					error = 'RallyStageMap not found';
 				} else {
 					error = err.message;
 				}
 			} else {
-				error = 'Failed to load model. Please try again.';
+				error = 'Failed to load rallyStageMap. Please try again.';
 			}
 		} finally {
 			isLoading = false;
 		}
 	}
 
-	async function handleUpdateModel(data: ModelInput) {
-		if (!model) return;
+	async function handleUpdateRallyStageMap(data: RallyStageMapInput) {
+		if (!rallyStageMap) return;
 
 		isSubmitting = true;
 		submitError = null;
 		fieldErrors = {};
 
 		try {
-			await updateModel(model.model_id, data);
-			model = { ...model, ...data };
+			await updateRallyStageMap(rallyStageMap.rally_stage_id, data);
+			rallyStageMap = { ...rallyStageMap, ...data };
 			showEditModal = false;
 		} catch (err) {
 			if (err instanceof ApiException) {
@@ -87,25 +94,25 @@
 					fieldErrors = err.fieldErrors;
 				}
 			} else {
-				submitError = 'Failed to update model. Please try again.';
+				submitError = 'Failed to update rallyStageMap. Please try again.';
 			}
 		} finally {
 			isSubmitting = false;
 		}
 	}
 
-	async function handleDeleteModel() {
-		if (!model) return;
+	async function handleDeleteRallyStageMap() {
+		if (!rallyStageMap) return;
 
-		if (!confirm('Are you sure you want to delete this model?')) {
+		if (!confirm('Are you sure you want to delete this rallyStageMap?')) {
 			return;
 		}
 
 		try {
-			await deleteModel(model.model_id);
-			await goto(resolve('/models'));
+			await deleteRallyStageMap(rallyStageMap.rally_stage_id);
+			await goto(resolve('/rallystagemaps'));
 		} catch (err) {
-			error = err instanceof ApiException ? err.message : 'Failed to delete model';
+			error = err instanceof ApiException ? err.message : 'Failed to delete rallyStageMap';
 		}
 	}
 </script>
@@ -121,39 +128,43 @@
 		<div style="display: flex; justify-content: center; padding: 2rem;">
 			<LoadingSpinner size="large" />
 		</div>
-	{:else if model}
+	{:else if rallyStageMap}
 		<div class="page-header">
 			<div>
-				<a href={resolve('/models')} class="back-link">← Back to Models</a>
-				<h1 class="page-title">{model.name}</h1>
+				<a href={resolve('/rallystagemaps')} class="back-link">← Back to RallyStageMaps</a>
+				<h1 class="page-title">{rallyStageMap.rally_stage_id} {rallyStageMapRallyName}</h1>
 			</div>
 			<div style="display: flex; gap: 0.5rem;">
 				<button class="btn btn-primary" onclick={() => (showEditModal = true)}> Edit </button>
-				<button class="btn btn-danger" onclick={handleDeleteModel}> Delete </button>
+				<button class="btn btn-danger" onclick={handleDeleteRallyStageMap}> Delete </button>
 			</div>
 		</div>
 
-		<div class="model-card">
-			<div class="model-field">
-				<span class="label">Model ID</span>
-				<p>{model.model_id}</p>
+		<div class="rallyStageMap-card">
+			<div class="rallyStageMap-field">
+				<span class="label">ID</span>
+				<p>{rallyStageMap.rally_stage_id}</p>
 			</div>
-			<div class="model-field">
-				<span class="label">Name</span>
-				<p>{model.name}</p>
+			<div class="rallyStageMap-field">
+				<span class="label">Rally</span>
+				<p>{rallyStageMapRallyName ?? rallyStageMap.rally_id ?? '—'}</p>
 			</div>
-			<div class="model-field">
-				<span class="label">Model Manufacturer</span>
-				<p>{modelManufacturerName ?? model.manufacturer_id ?? '—'}</p>
+			<div class="rallyStageMap-field">
+				<span class="label">Stage</span>
+				<p>{rallyStageMap.stage_id ?? '—'}</p>
+			</div>
+			<div class="rallyStageMap-field">
+				<span class="label">Stage Order</span>
+				<p>{rallyStageMap.stage_order ?? '—'}</p>
 			</div>
 		</div>
 	{:else}
-		<p>Model not found.</p>
+		<p>RallyStageMap not found.</p>
 	{/if}
 
 	<Modal
 		isOpen={showEditModal}
-		title="Edit Model"
+		title="Edit RallyStageMap"
 		onClose={() => {
 			showEditModal = false;
 			submitError = null;
@@ -163,13 +174,14 @@
 		{#if submitError}
 			<ErrorAlert message={submitError} />
 		{/if}
-		{#if model}
-			<ModelForm
-				initialData={model}
-				manufacturerOptions={manufacturers}
+		{#if rallyStageMap}
+			<RallyStageMapForm
+				initialData={rallyStageMap}
+				rallyOptions={rallies}
+				stageOptions={stages}
 				isLoading={isSubmitting}
 				{fieldErrors}
-				onSubmit={handleUpdateModel}
+				onSubmit={handleUpdateRallyStageMap}
 				onCancel={() => {
 					showEditModal = false;
 					submitError = null;
@@ -192,29 +204,29 @@
 		text-decoration: underline;
 	}
 
-	.model-card {
+	.rallyStageMap-card {
 		background-color: var(--color-bg-secondary);
 		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		padding: 2rem;
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 		gap: 2rem;
 	}
 
-	.model-field {
+	.rallyStageMap-field {
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
 	}
 
-	.model-field .label {
+	.rallyStageMap-field .label {
 		font-weight: 600;
 		color: var(--color-text);
 		margin-bottom: 0;
 	}
 
-	.model-field p {
+	.rallyStageMap-field p {
 		margin: 0;
 		color: var(--color-text);
 		font-size: 1.1rem;
@@ -236,7 +248,7 @@
 			flex-direction: column;
 		}
 
-		.model-card {
+		.rallyStageMap-card {
 			grid-template-columns: 1fr;
 		}
 

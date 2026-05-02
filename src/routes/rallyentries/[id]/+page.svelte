@@ -2,18 +2,24 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import type { Manufacturer, ManufacturerInput } from '$lib/types/manufacturer';
-	import { ApiException } from '$lib/types/manufacturer';
-	import { getManufacturer, updateManufacturer, deleteManufacturer } from '$lib/api/manufacturers';
+	import type { RallyEntry, RallyEntryInput } from '$lib/types/rallyEntry';
+	import type { Rally } from '$lib/types/rally';
+	import type { Crew } from '$lib/types/crew';
+	import { ApiException } from '$lib/types/rallyEntry';
+	import { getRallyEntry, updateRallyEntry, deleteRallyEntry } from '$lib/api/rallyEntries';
+	import { listRallies } from '$lib/api/rallies';
+	import { listCrews } from '$lib/api/crews';
 	import Modal from '$lib/components/Modal.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import ErrorAlert from '$lib/components/ErrorAlert.svelte';
-	import ManufacturerForm from '$lib/components/ManufacturerForm.svelte';
+	import RallyEntryForm from '$lib/components/RallyEntryForm.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
-	let manufacturer: Manufacturer | null = $state(null);
+	let rallyEntry: RallyEntry | null = $state(null);
+	let rallies: Rally[] = $state([]);
+	let crews: Crew[] = $state([]);
 	let isLoading = $state(true);
 	let error: string | null = $state(null);
 	let showEditModal = $state(false);
@@ -21,41 +27,61 @@
 	let submitError: string | null = $state(null);
 	let fieldErrors = $state({});
 
-	onMount(async () => {
-		await fetchManufacturer(data.manufacturerId);
+	const rallyNamesById = $derived(
+		Object.fromEntries(rallies.map((rally) => [rally.rally_id, rally.name]))
+	);
+
+	const rallyEntryRallyName = $derived.by(() => {
+		const rallyId = rallyEntry?.rally_id;
+		if (rallyId == null) {
+			return null;
+		}
+
+		return rallyNamesById[rallyId] ?? null;
 	});
 
-	async function fetchManufacturer(id: number) {
+	onMount(async () => {
+		await fetchRallyEntry(data.rallyEntryId);
+	});
+
+	async function fetchRallyEntry(id: number) {
 		isLoading = true;
 		error = null;
 
 		try {
-			manufacturer = await getManufacturer(id);
+			const [rallyEntryResult, ralliesResult, crewsResult] = await Promise.all([
+				getRallyEntry(id),
+				listRallies(),
+				listCrews()
+			]);
+			rallyEntry = rallyEntryResult;
+			rallies = ralliesResult;
+			crews = crewsResult;
 		} catch (err) {
 			if (err instanceof ApiException) {
 				if (err.statusCode === 404) {
-					error = 'Manufacturer not found';
+					error = 'RallyEntry not found';
 				} else {
 					error = err.message;
 				}
 			} else {
-				error = 'Failed to load manufacturer. Please try again.';
+				error = 'Failed to load rallyEntry. Please try again.';
 			}
 		} finally {
 			isLoading = false;
 		}
 	}
 
-	async function handleUpdateManufacturer(data: ManufacturerInput) {
-		if (!manufacturer) return;
+	async function handleUpdateRallyEntry(data: RallyEntryInput) {
+		if (!rallyEntry) return;
 
 		isSubmitting = true;
 		submitError = null;
 		fieldErrors = {};
 
 		try {
-			await updateManufacturer(manufacturer.manufacturer_id, data);
-			manufacturer = { ...manufacturer, ...data };
+			await updateRallyEntry(rallyEntry.entry_id, data);
+			rallyEntry = { ...rallyEntry, ...data };
 			showEditModal = false;
 		} catch (err) {
 			if (err instanceof ApiException) {
@@ -64,25 +90,25 @@
 					fieldErrors = err.fieldErrors;
 				}
 			} else {
-				submitError = 'Failed to update manufacturer. Please try again.';
+				submitError = 'Failed to update rallyEntry. Please try again.';
 			}
 		} finally {
 			isSubmitting = false;
 		}
 	}
 
-	async function handleDeleteManufacturer() {
-		if (!manufacturer) return;
+	async function handleDeleteRallyEntry() {
+		if (!rallyEntry) return;
 
-		if (!confirm('Are you sure you want to delete this manufacturer?')) {
+		if (!confirm('Are you sure you want to delete this rallyEntry?')) {
 			return;
 		}
 
 		try {
-			await deleteManufacturer(manufacturer.manufacturer_id);
-			await goto(resolve('/manufacturers'));
+			await deleteRallyEntry(rallyEntry.entry_id);
+			await goto(resolve('/rallyentries'));
 		} catch (err) {
-			error = err instanceof ApiException ? err.message : 'Failed to delete manufacturer';
+			error = err instanceof ApiException ? err.message : 'Failed to delete rallyEntry';
 		}
 	}
 </script>
@@ -98,35 +124,43 @@
 		<div style="display: flex; justify-content: center; padding: 2rem;">
 			<LoadingSpinner size="large" />
 		</div>
-	{:else if manufacturer}
+	{:else if rallyEntry}
 		<div class="page-header">
 			<div>
-				<a href={resolve('/manufacturers')} class="back-link">← Back to Manufacturers</a>
-				<h1 class="page-title">{manufacturer.name}</h1>
+				<a href={resolve('/rallyentries')} class="back-link">← Back to RallyEntries</a>
+				<h1 class="page-title">{rallyEntry.entry_id} {rallyEntryRallyName}</h1>
 			</div>
 			<div style="display: flex; gap: 0.5rem;">
 				<button class="btn btn-primary" onclick={() => (showEditModal = true)}> Edit </button>
-				<button class="btn btn-danger" onclick={handleDeleteManufacturer}> Delete </button>
+				<button class="btn btn-danger" onclick={handleDeleteRallyEntry}> Delete </button>
 			</div>
 		</div>
 
-		<div class="manufacturer-card">
-			<div class="manufacturer-field">
-				<span class="label">Manufacturer ID</span>
-				<p>{manufacturer.manufacturer_id}</p>
+		<div class="rallyEntry-card">
+			<div class="rallyEntry-field">
+				<span class="label">RallyEntry ID</span>
+				<p>{rallyEntry.entry_id}</p>
 			</div>
-			<div class="manufacturer-field">
-				<span class="label">Name</span>
-				<p>{manufacturer.name}</p>
+			<div class="rallyEntry-field">
+				<span class="label">RallyEntry Rally</span>
+				<p>{rallyEntryRallyName ?? rallyEntry.rally_id ?? '—'}</p>
+			</div>
+			<div class="rallyEntry-field">
+				<span class="label">RallyEntry Crew</span>
+				<p>{rallyEntry.crew_id ?? '—'}</p>
+			</div>
+			<div class="rallyEntry-field">
+				<span class="label">RallyEntry Car</span>
+				<p>{rallyEntry.car_number ?? '—'}</p>
 			</div>
 		</div>
 	{:else}
-		<p>Manufacturer not found.</p>
+		<p>RallyEntry not found.</p>
 	{/if}
 
 	<Modal
 		isOpen={showEditModal}
-		title="Edit Manufacturer"
+		title="Edit RallyEntry"
 		onClose={() => {
 			showEditModal = false;
 			submitError = null;
@@ -136,12 +170,14 @@
 		{#if submitError}
 			<ErrorAlert message={submitError} />
 		{/if}
-		{#if manufacturer}
-			<ManufacturerForm
-				initialData={manufacturer}
+		{#if rallyEntry}
+			<RallyEntryForm
+				initialData={rallyEntry}
+				rallyOptions={rallies}
+				crewOptions={crews}
 				isLoading={isSubmitting}
 				{fieldErrors}
-				onSubmit={handleUpdateManufacturer}
+				onSubmit={handleUpdateRallyEntry}
 				onCancel={() => {
 					showEditModal = false;
 					submitError = null;
@@ -164,7 +200,7 @@
 		text-decoration: underline;
 	}
 
-	.manufacturer-card {
+	.rallyEntry-card {
 		background-color: var(--color-bg-secondary);
 		border: 1px solid var(--color-border);
 		border-radius: 8px;
@@ -174,19 +210,19 @@
 		gap: 2rem;
 	}
 
-	.manufacturer-field {
+	.rallyEntry-field {
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
 	}
 
-	.manufacturer-field .label {
+	.rallyEntry-field .label {
 		font-weight: 600;
 		color: var(--color-text);
 		margin-bottom: 0;
 	}
 
-	.manufacturer-field p {
+	.rallyEntry-field p {
 		margin: 0;
 		color: var(--color-text);
 		font-size: 1.1rem;
@@ -208,7 +244,7 @@
 			flex-direction: column;
 		}
 
-		.manufacturer-card {
+		.rallyEntry-card {
 			grid-template-columns: 1fr;
 		}
 
