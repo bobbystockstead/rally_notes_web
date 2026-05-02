@@ -82,7 +82,7 @@
 			disabled={isLoading}
 			class:input-error={fieldErrors.crew_id}
 		>
-			<option value="">No crew</option>
+			<option value="">Select a crew</option>
 			{#each crewOptions as crew (crew.crew_id)}
 				<option value={String(crew.crew_id)}>{crew.crew_id}</option>
 			{/each}
