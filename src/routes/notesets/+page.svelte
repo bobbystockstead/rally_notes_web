@@ -230,6 +230,7 @@
 		{/if}
 		<NoteSetForm
 			crewOptions={crews}
+			stageOptions={stages}
 			isLoading={isSubmitting}
 			{fieldErrors}
 			onSubmit={handleCreateNoteSet}

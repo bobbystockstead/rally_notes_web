@@ -147,15 +147,15 @@
 			</div>
 			<div class="rallyStageMap-field">
 				<span class="label">Rally</span>
-				<p>{rallyStageMapRallyName ?? rallyStageMap.rally_id ?? '—'}</p>
+				<p>{rallyStageMapRallyName ?? rallyStageMap.rally_id}</p>
 			</div>
 			<div class="rallyStageMap-field">
 				<span class="label">Stage</span>
-				<p>{rallyStageMap.stage_id ?? '—'}</p>
+				<p>{rallyStageMap.stage_id}</p>
 			</div>
 			<div class="rallyStageMap-field">
 				<span class="label">Stage Order</span>
-				<p>{rallyStageMap.stage_order ?? '—'}</p>
+				<p>{rallyStageMap.stage_order}</p>
 			</div>
 		</div>
 	{:else}

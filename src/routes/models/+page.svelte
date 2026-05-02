@@ -176,11 +176,9 @@
 						<tr>
 							<td>{model.model_id}</td>
 							<td>{model.name}</td>
-							<td>
-								{model.manufacturer_id === null
-									? '—'
-									: (manufacturerNamesById[model.manufacturer_id] ?? `ID ${model.manufacturer_id}`)}
-							</td>
+							<td
+								>{manufacturerNamesById[model.manufacturer_id] ?? `ID ${model.manufacturer_id}`}</td
+							>
 							<td>
 								<div class="action-buttons">
 									<a

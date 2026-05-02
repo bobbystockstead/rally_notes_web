@@ -36,11 +36,12 @@
 
 	const isEditMode = $derived(!!initialData);
 	const isFormEmpty = $derived(!formData.name.trim());
+	const isFormInvalid = $derived(isFormEmpty || formData.manufacturer_id === null);
 
 	function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		const manufacturerId = formData.manufacturer_id;
-		if (isFormEmpty || manufacturerId === null) {
+		if (isFormInvalid || manufacturerId === null) {
 			return;
 		}
 		onSubmit({
@@ -67,7 +68,7 @@
 	</div>
 
 	<div class="form-group">
-		<label for="manufacturer_id">Manufacturer</label>
+		<label for="manufacturer_id">Manufacturer *</label>
 		<select
 			id="manufacturer_id"
 			value={formData.manufacturer_id === null ? '' : String(formData.manufacturer_id)}
@@ -75,10 +76,11 @@
 				const value = (event.currentTarget as HTMLSelectElement).value;
 				formData.manufacturer_id = value === '' ? null : Number(value);
 			}}
+			required
 			disabled={isLoading}
 			class:input-error={fieldErrors.manufacturer_id}
 		>
-			<option value="">No manufacturer</option>
+			<option value="">Select manufacturer</option>
 			{#each manufacturerOptions as manufacturer (manufacturer.manufacturer_id)}
 				<option value={String(manufacturer.manufacturer_id)}>{manufacturer.name}</option>
 			{/each}
@@ -89,7 +91,7 @@
 	</div>
 
 	<div class="form-actions">
-		<button type="submit" disabled={isLoading || isFormEmpty} class="btn btn-primary">
+		<button type="submit" disabled={isLoading || isFormInvalid} class="btn btn-primary">
 			{#if isLoading}
 				<span class="btn-spinner">
 					<LoadingSpinner size="small" />

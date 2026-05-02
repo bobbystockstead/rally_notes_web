@@ -196,7 +196,7 @@
 							<td>{rallyStageMap.rally_stage_id}</td>
 							<td>{rallyNamesById[rallyStageMap.rally_id] ?? `ID ${rallyStageMap.rally_id}`}</td>
 							<td>{stageNamesById[rallyStageMap.stage_id] ?? `ID ${rallyStageMap.stage_id}`}</td>
-							<td>{rallyStageMap.stage_order ?? '—'}</td>
+							<td>{rallyStageMap.stage_order}</td>
 							<td>
 								<div class="action-buttons">
 									<a
